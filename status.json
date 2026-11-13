@@ -394,7 +394,7 @@
   "One upstream desktop test failed once on ubuntu-22.04 in the fork's Desktop App Check and passed on re-run. Upstream's own CI never runs that crate, so the fork is where this test is seen at all."
  ],
  "derived": {
-  "enact_agent_head": "898a9d1d9",
+  "enact_agent_head": "e25e0cd72",
   "enact_agent_branch": "worktree/affectionate-ride-r8iuw6",
   "enact_agent_clean": true,
   "upstream_head": "2c0a8c263",
