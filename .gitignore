@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.mypy_cache/
+.pytest_cache/
+
+# Third-party research clones — fetch them, do not vendor them.
+# See research/README.md for the exact commands and the pinned commits.
+research/oh-my-pi/
+research/lean-ctx/
+research/jcode/
+
+# Host wiring the bridge installer writes into the demo project.
+# It embeds machine-specific absolute paths; `bridge.py install` recreates it.
+prototype/demo-project/.mcp.json
+prototype/demo-project/AGENTS.md
+prototype/demo-project/CLAUDE.md
+prototype/demo-project/.claude/
+prototype/demo-project/.codex/
+
+# Demo project runtime state (sqlite memory + hygiene state)
+prototype/demo-project/memory/
+prototype/demo-project/state/
+
+# OS / editor
+.DS_Store
+*.swp
+.idea/
+.vscode/

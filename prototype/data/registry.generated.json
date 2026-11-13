@@ -1,0 +1,4454 @@
+{
+ "schema_version": 2,
+ "generated_from": {
+  "inventory_csv": "zeroclaw-tools-operations.csv",
+  "overlay_csv": "overlays/enact/zeroclaw-tools-operations.csv"
+ },
+ "source_tool_count": 109,
+ "canonical_tool_count": 83,
+ "operation_count": 244,
+ "tools": [
+  {
+   "name": "shell",
+   "description": "Execute a shell command in the workspace directory.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "command": {
+      "type": "string",
+      "description": "Shell command to run."
+     },
+     "cwd": {
+      "type": "string",
+      "description": "Working directory, relative to the workspace root."
+     },
+     "timeout_ms": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Timeout in milliseconds."
+     }
+    },
+    "required": [
+     "command"
+    ],
+    "additionalProperties": false
+   },
+   "operations": [
+    "run_command"
+   ],
+   "op_map": {
+    "run_command": {
+     "tool": "shell",
+     "operation": "run_command",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "shell"
+   ],
+   "tier": "Core",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-runtime/src/tools/shell.rs"
+   ]
+  },
+  {
+   "name": "file_read",
+   "description": "Read a workspace file with line numbers, optional offset and limit, or one of the read modes: signatures, outline, diff, anchored, task.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "path": {
+      "type": "string",
+      "description": "Path relative to the workspace root."
+     },
+     "offset": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "First line to read (1-indexed)."
+     },
+     "limit": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Maximum number of lines."
+     },
+     "anchor": {
+      "type": "string",
+      "description": "The text to find, for the read_anchored action."
+     },
+     "task": {
+      "type": "string",
+      "description": "What to look for, for the read_task action."
+     },
+     "base": {
+      "type": "string",
+      "description": "The previous text, for the read_diff action."
+     },
+     "context": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Lines of context around a match."
+     }
+    },
+    "required": [
+     "path"
+    ],
+    "additionalProperties": false
+   },
+   "operations": [
+    "read"
+   ],
+   "op_map": {
+    "read": {
+     "tool": "file_read",
+     "operation": "read",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "file_read"
+   ],
+   "tier": "Core",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": false,
+   "source_files": [
+    "crates/zeroclaw-runtime/src/tools/file_read.rs"
+   ]
+  },
+  {
+   "name": "file_write",
+   "description": "Write a workspace file, creating or overwriting it.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "path": {
+      "type": "string",
+      "description": "Path relative to the workspace root."
+     },
+     "content": {
+      "type": "string",
+      "description": "Full file content to write."
+     }
+    },
+    "required": [
+     "path"
+    ],
+    "additionalProperties": false
+   },
+   "operations": [
+    "write"
+   ],
+   "op_map": {
+    "write": {
+     "tool": "file_write",
+     "operation": "write",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "file_write"
+   ],
+   "tier": "Core",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/file_write.rs"
+   ]
+  },
+  {
+   "name": "file_edit",
+   "description": "Replace an exact string in a workspace file.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "path": {
+      "type": "string",
+      "description": "Path relative to the workspace root."
+     },
+     "old_string": {
+      "type": "string",
+      "description": "Exact text to replace."
+     },
+     "new_string": {
+      "type": "string",
+      "description": "Replacement text."
+     }
+    },
+    "required": [
+     "path"
+    ],
+    "additionalProperties": false
+   },
+   "operations": [
+    "edit"
+   ],
+   "op_map": {
+    "edit": {
+     "tool": "file_edit",
+     "operation": "edit",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "file_edit"
+   ],
+   "tier": "Core",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/file_edit.rs"
+   ]
+  },
+  {
+   "name": "glob_search",
+   "description": "List workspace files matching a glob pattern.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "pattern": {
+      "type": "string",
+      "description": "Glob pattern, e.g. `**/*.rs`."
+     },
+     "path": {
+      "type": "string",
+      "description": "Subtree to search, relative to the workspace root."
+     }
+    },
+    "required": [
+     "pattern"
+    ],
+    "additionalProperties": false
+   },
+   "operations": [
+    "search_paths"
+   ],
+   "op_map": {
+    "search_paths": {
+     "tool": "glob_search",
+     "operation": "search_paths",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "glob_search"
+   ],
+   "tier": "Core",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": false,
+   "source_files": [
+    "crates/zeroclaw-tools/src/glob_search.rs"
+   ]
+  },
+  {
+   "name": "content_search",
+   "description": "Regex-search the contents of workspace files.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "pattern": {
+      "type": "string",
+      "description": "Regular expression to search for."
+     },
+     "path": {
+      "type": "string",
+      "description": "Subtree to search, relative to the workspace root."
+     },
+     "max_results": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Cap on matches returned."
+     }
+    },
+    "required": [
+     "pattern"
+    ],
+    "additionalProperties": false
+   },
+   "operations": [
+    "search_content"
+   ],
+   "op_map": {
+    "search_content": {
+     "tool": "content_search",
+     "operation": "search_content",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "content_search"
+   ],
+   "tier": "Core",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": false,
+   "source_files": [
+    "crates/zeroclaw-tools/src/content_search.rs"
+   ]
+  },
+  {
+   "name": "git_operations",
+   "description": "Structured git operations over the workspace repository.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "add",
+       "branch",
+       "checkout",
+       "commit",
+       "diff",
+       "drop",
+       "list",
+       "log",
+       "pop",
+       "push",
+       "stash",
+       "status",
+       "worktree"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": false
+   },
+   "operations": [
+    "add",
+    "branch",
+    "checkout",
+    "commit",
+    "diff",
+    "drop",
+    "list",
+    "log",
+    "pop",
+    "push",
+    "stash",
+    "status",
+    "worktree"
+   ],
+   "op_map": {
+    "add": {
+     "tool": "git_operations",
+     "operation": "add",
+     "disabled": false
+    },
+    "branch": {
+     "tool": "git_operations",
+     "operation": "branch",
+     "disabled": false
+    },
+    "checkout": {
+     "tool": "git_operations",
+     "operation": "checkout",
+     "disabled": false
+    },
+    "commit": {
+     "tool": "git_operations",
+     "operation": "commit",
+     "disabled": false
+    },
+    "diff": {
+     "tool": "git_operations",
+     "operation": "diff",
+     "disabled": false
+    },
+    "drop": {
+     "tool": "git_operations",
+     "operation": "drop",
+     "disabled": false
+    },
+    "list": {
+     "tool": "git_operations",
+     "operation": "list",
+     "disabled": false
+    },
+    "log": {
+     "tool": "git_operations",
+     "operation": "log",
+     "disabled": false
+    },
+    "pop": {
+     "tool": "git_operations",
+     "operation": "pop",
+     "disabled": false
+    },
+    "push": {
+     "tool": "git_operations",
+     "operation": "push",
+     "disabled": false
+    },
+    "stash": {
+     "tool": "git_operations",
+     "operation": "stash",
+     "disabled": false
+    },
+    "status": {
+     "tool": "git_operations",
+     "operation": "status",
+     "disabled": false
+    },
+    "worktree": {
+     "tool": "git_operations",
+     "operation": "worktree",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "git_operations"
+   ],
+   "tier": "Core",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/git_operations.rs"
+   ]
+  },
+  {
+   "name": "memory",
+   "description": "Long-term memory: store, recall, forget, export and purge facts.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "store",
+       "recall",
+       "forget",
+       "export",
+       "purge"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true
+   },
+   "operations": [
+    "store",
+    "recall",
+    "forget",
+    "export",
+    "purge"
+   ],
+   "op_map": {
+    "store": {
+     "tool": "memory_store",
+     "operation": "store",
+     "disabled": false
+    },
+    "recall": {
+     "tool": "memory_recall",
+     "operation": "recall",
+     "disabled": false
+    },
+    "forget": {
+     "tool": "memory_forget",
+     "operation": "forget",
+     "disabled": false
+    },
+    "export": {
+     "tool": "memory_export",
+     "operation": "export",
+     "disabled": false
+    },
+    "purge": {
+     "tool": "memory_purge",
+     "operation": "purge",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "memory_store",
+    "memory_recall",
+    "memory_forget",
+    "memory_export",
+    "memory_purge"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": false,
+   "source_files": [
+    "crates/zeroclaw-tools/src/memory_store.rs",
+    "crates/zeroclaw-tools/src/memory_recall.rs",
+    "crates/zeroclaw-tools/src/memory_forget.rs",
+    "crates/zeroclaw-tools/src/memory_export.rs",
+    "crates/zeroclaw-tools/src/memory_purge.rs"
+   ]
+  },
+  {
+   "name": "web_fetch",
+   "description": "Fetch a URL and return clean plain text.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "fetch"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "fetch"
+   ],
+   "op_map": {
+    "fetch": {
+     "tool": "web_fetch",
+     "operation": "fetch",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "web_fetch"
+   ],
+   "tier": "Core",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/web_fetch.rs"
+   ]
+  },
+  {
+   "name": "cron",
+   "description": "Schedule and manage autonomous jobs, recurring schedules and one-shot timers.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "cron_add",
+       "cron_list",
+       "cron_remove",
+       "update",
+       "run",
+       "list_runs",
+       "schedule_add",
+       "cancel",
+       "create",
+       "get",
+       "schedule_list",
+       "once",
+       "pause",
+       "schedule_remove",
+       "resume"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true
+   },
+   "operations": [
+    "cron_add",
+    "cron_list",
+    "cron_remove",
+    "update",
+    "run",
+    "list_runs",
+    "schedule_add",
+    "cancel",
+    "create",
+    "get",
+    "schedule_list",
+    "once",
+    "pause",
+    "schedule_remove",
+    "resume"
+   ],
+   "op_map": {
+    "cron_add": {
+     "tool": "cron_add",
+     "operation": "add",
+     "disabled": false
+    },
+    "cron_list": {
+     "tool": "cron_list",
+     "operation": "list",
+     "disabled": false
+    },
+    "cron_remove": {
+     "tool": "cron_remove",
+     "operation": "remove",
+     "disabled": false
+    },
+    "update": {
+     "tool": "cron_update",
+     "operation": "update",
+     "disabled": false
+    },
+    "run": {
+     "tool": "cron_run",
+     "operation": "run",
+     "disabled": false
+    },
+    "list_runs": {
+     "tool": "cron_runs",
+     "operation": "list_runs",
+     "disabled": false
+    },
+    "schedule_add": {
+     "tool": "schedule",
+     "operation": "add",
+     "disabled": false
+    },
+    "cancel": {
+     "tool": "schedule",
+     "operation": "cancel",
+     "disabled": false
+    },
+    "create": {
+     "tool": "schedule",
+     "operation": "create",
+     "disabled": false
+    },
+    "get": {
+     "tool": "schedule",
+     "operation": "get",
+     "disabled": false
+    },
+    "schedule_list": {
+     "tool": "schedule",
+     "operation": "list",
+     "disabled": false
+    },
+    "once": {
+     "tool": "schedule",
+     "operation": "once",
+     "disabled": false
+    },
+    "pause": {
+     "tool": "schedule",
+     "operation": "pause",
+     "disabled": false
+    },
+    "schedule_remove": {
+     "tool": "schedule",
+     "operation": "remove",
+     "disabled": false
+    },
+    "resume": {
+     "tool": "schedule",
+     "operation": "resume",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "cron_add",
+    "cron_list",
+    "cron_remove",
+    "cron_update",
+    "cron_run",
+    "cron_runs",
+    "schedule"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-runtime/src/tools/cron_add.rs",
+    "crates/zeroclaw-runtime/src/tools/cron_list.rs",
+    "crates/zeroclaw-runtime/src/tools/cron_remove.rs",
+    "crates/zeroclaw-runtime/src/tools/cron_update.rs",
+    "crates/zeroclaw-runtime/src/tools/cron_run.rs",
+    "crates/zeroclaw-runtime/src/tools/cron_runs.rs",
+    "crates/zeroclaw-runtime/src/tools/schedule.rs"
+   ]
+  },
+  {
+   "name": "spawn_subagent",
+   "description": "Spawn an ephemeral child run that inherits the caller's identity.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "spawn"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "spawn"
+   ],
+   "op_map": {
+    "spawn": {
+     "tool": "spawn_subagent",
+     "operation": "spawn",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "spawn_subagent"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-runtime/src/tools/spawn_subagent.rs"
+   ]
+  },
+  {
+   "name": "delegate",
+   "description": "Hand off work to a different configured agent.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "delegate",
+       "check_result",
+       "list_results",
+       "cancel_task",
+       "await_sessions"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true
+   },
+   "operations": [
+    "delegate",
+    "check_result",
+    "list_results",
+    "cancel_task",
+    "await_sessions"
+   ],
+   "op_map": {
+    "delegate": {
+     "tool": "delegate",
+     "operation": "delegate",
+     "disabled": false
+    },
+    "check_result": {
+     "tool": "delegate",
+     "operation": "check_result",
+     "disabled": false
+    },
+    "list_results": {
+     "tool": "delegate",
+     "operation": "list_results",
+     "disabled": false
+    },
+    "cancel_task": {
+     "tool": "delegate",
+     "operation": "cancel_task",
+     "disabled": false
+    },
+    "await_sessions": {
+     "tool": "delegate",
+     "operation": "await_sessions",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "delegate"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-runtime/src/tools/delegate.rs"
+   ]
+  },
+  {
+   "name": "send_message_to_peer",
+   "description": "Send an agent-to-agent message to a peer session.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "send"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "send"
+   ],
+   "op_map": {
+    "send": {
+     "tool": "send_message_to_peer",
+     "operation": "send",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "send_message_to_peer"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-runtime/src/tools/send_message_to_peer.rs"
+   ]
+  },
+  {
+   "name": "wait",
+   "description": "wait.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "wait"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "wait"
+   ],
+   "op_map": {
+    "wait": {
+     "tool": "wait",
+     "operation": "wait",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "wait"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": false,
+   "source_files": [
+    "crates/zeroclaw-runtime/src/tools/wait_task.rs"
+   ]
+  },
+  {
+   "name": "checkpoint",
+   "description": "checkpoint.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "checkpoint"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "checkpoint"
+   ],
+   "op_map": {
+    "checkpoint": {
+     "tool": "checkpoint",
+     "operation": "checkpoint",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "checkpoint"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": false,
+   "source_files": [
+    "crates/zeroclaw-runtime/src/tools/checkpoint.rs"
+   ]
+  },
+  {
+   "name": "rewind",
+   "description": "rewind.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "rewind"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "rewind"
+   ],
+   "op_map": {
+    "rewind": {
+     "tool": "rewind",
+     "operation": "rewind",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "rewind"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": false,
+   "source_files": [
+    "crates/zeroclaw-runtime/src/tools/rewind.rs"
+   ]
+  },
+  {
+   "name": "plan_mode",
+   "description": "plan mode.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "status",
+       "plan"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true
+   },
+   "operations": [
+    "status",
+    "plan"
+   ],
+   "op_map": {
+    "status": {
+     "tool": "plan_mode",
+     "operation": "status",
+     "disabled": false
+    },
+    "plan": {
+     "tool": "plan_mode",
+     "operation": "plan",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "plan_mode"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": false,
+   "source_files": [
+    "crates/zeroclaw-runtime/src/tools/plan_mode.rs"
+   ]
+  },
+  {
+   "name": "plan_execute",
+   "description": "plan execute.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "execute"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "execute"
+   ],
+   "op_map": {
+    "execute": {
+     "tool": "plan_execute",
+     "operation": "execute",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "plan_execute"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": false,
+   "source_files": [
+    "crates/zeroclaw-runtime/src/tools/plan_execute.rs"
+   ]
+  },
+  {
+   "name": "model",
+   "description": "Control plane for model selection, routing rules and provider listing.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "model_switch_get",
+       "list_model_providers",
+       "list_models",
+       "set",
+       "model_routing_config_get",
+       "list_hints",
+       "remove_agent",
+       "remove_scenario",
+       "set_default",
+       "upsert_agent",
+       "upsert_scenario"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true
+   },
+   "operations": [
+    "model_switch_get",
+    "list_model_providers",
+    "list_models",
+    "set",
+    "model_routing_config_get",
+    "list_hints",
+    "remove_agent",
+    "remove_scenario",
+    "set_default",
+    "upsert_agent",
+    "upsert_scenario"
+   ],
+   "op_map": {
+    "model_switch_get": {
+     "tool": "model_switch",
+     "operation": "get",
+     "disabled": false
+    },
+    "list_model_providers": {
+     "tool": "model_switch",
+     "operation": "list_model_providers",
+     "disabled": false
+    },
+    "list_models": {
+     "tool": "model_switch",
+     "operation": "list_models",
+     "disabled": false
+    },
+    "set": {
+     "tool": "model_switch",
+     "operation": "set",
+     "disabled": false
+    },
+    "model_routing_config_get": {
+     "tool": "model_routing_config",
+     "operation": "get",
+     "disabled": false
+    },
+    "list_hints": {
+     "tool": "model_routing_config",
+     "operation": "list_hints",
+     "disabled": false
+    },
+    "remove_agent": {
+     "tool": "model_routing_config",
+     "operation": "remove_agent",
+     "disabled": false
+    },
+    "remove_scenario": {
+     "tool": "model_routing_config",
+     "operation": "remove_scenario",
+     "disabled": false
+    },
+    "set_default": {
+     "tool": "model_routing_config",
+     "operation": "set_default",
+     "disabled": false
+    },
+    "upsert_agent": {
+     "tool": "model_routing_config",
+     "operation": "upsert_agent",
+     "disabled": false
+    },
+    "upsert_scenario": {
+     "tool": "model_routing_config",
+     "operation": "upsert_scenario",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "model_switch",
+    "model_routing_config"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-runtime/src/tools/model_switch.rs",
+    "crates/zeroclaw-tools/src/model_routing_config.rs"
+   ]
+  },
+  {
+   "name": "proxy_config",
+   "description": "Manage proxy settings and the process-wide runtime proxy.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "apply_env",
+       "clear_env",
+       "disable",
+       "get",
+       "list_services",
+       "set"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true
+   },
+   "operations": [
+    "apply_env",
+    "clear_env",
+    "disable",
+    "get",
+    "list_services",
+    "set"
+   ],
+   "op_map": {
+    "apply_env": {
+     "tool": "proxy_config",
+     "operation": "apply_env",
+     "disabled": false
+    },
+    "clear_env": {
+     "tool": "proxy_config",
+     "operation": "clear_env",
+     "disabled": false
+    },
+    "disable": {
+     "tool": "proxy_config",
+     "operation": "disable",
+     "disabled": false
+    },
+    "get": {
+     "tool": "proxy_config",
+     "operation": "get",
+     "disabled": false
+    },
+    "list_services": {
+     "tool": "proxy_config",
+     "operation": "list_services",
+     "disabled": false
+    },
+    "set": {
+     "tool": "proxy_config",
+     "operation": "set",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "proxy_config"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/proxy_config.rs"
+   ]
+  },
+  {
+   "name": "ask_user",
+   "description": "Ask the active channel a question and wait for the reply.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "ask"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "ask"
+   ],
+   "op_map": {
+    "ask": {
+     "tool": "ask_user",
+     "operation": "ask",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "ask_user"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": false,
+   "source_files": [
+    "crates/zeroclaw-tools/src/ask_user.rs"
+   ]
+  },
+  {
+   "name": "escalate_to_human",
+   "description": "Escalate to a human with structured urgency routing.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "escalate"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "escalate"
+   ],
+   "op_map": {
+    "escalate": {
+     "tool": "escalate_to_human",
+     "operation": "escalate",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "escalate_to_human"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": false,
+   "source_files": [
+    "crates/zeroclaw-tools/src/escalate.rs"
+   ]
+  },
+  {
+   "name": "reaction",
+   "description": "Add or remove a reaction on a message.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "add",
+       "remove"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true
+   },
+   "operations": [
+    "add",
+    "remove"
+   ],
+   "op_map": {
+    "add": {
+     "tool": "reaction",
+     "operation": "add",
+     "disabled": false
+    },
+    "remove": {
+     "tool": "reaction",
+     "operation": "remove",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "reaction"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/reaction.rs"
+   ]
+  },
+  {
+   "name": "poll",
+   "description": "poll.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "poll"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "poll"
+   ],
+   "op_map": {
+    "poll": {
+     "tool": "poll",
+     "operation": "poll",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "poll"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": false,
+   "source_files": [
+    "crates/zeroclaw-tools/src/poll.rs"
+   ]
+  },
+  {
+   "name": "channel_room",
+   "description": "Create a channel room and invite a user.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "create_room",
+       "invite_user"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true
+   },
+   "operations": [
+    "create_room",
+    "invite_user"
+   ],
+   "op_map": {
+    "create_room": {
+     "tool": "channel_room",
+     "operation": "create_room",
+     "disabled": false
+    },
+    "invite_user": {
+     "tool": "channel_room",
+     "operation": "invite_user",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "channel_room"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/channel_room.rs"
+   ]
+  },
+  {
+   "name": "send_via",
+   "description": "send via.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "send"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "send"
+   ],
+   "op_map": {
+    "send": {
+     "tool": "send_via",
+     "operation": "send",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "send_via"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": false,
+   "source_files": [
+    "crates/zeroclaw-tools/src/send_via.rs"
+   ]
+  },
+  {
+   "name": "git_forge",
+   "description": "Operate a git forge (GitHub, Gitea) through the git channel.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "describe",
+       "typed_resource_action",
+       "raw"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true
+   },
+   "operations": [
+    "describe",
+    "typed_resource_action",
+    "raw"
+   ],
+   "op_map": {
+    "describe": {
+     "tool": "git_forge",
+     "operation": "describe",
+     "disabled": false
+    },
+    "typed_resource_action": {
+     "tool": "git_forge",
+     "operation": "typed_resource_action",
+     "disabled": false
+    },
+    "raw": {
+     "tool": "git_forge",
+     "operation": "raw",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "git_forge"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/git_forge.rs"
+   ]
+  },
+  {
+   "name": "sessions",
+   "description": "Inspect and steer agent sessions: current, list, history and send.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "current",
+       "list",
+       "history",
+       "send"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true
+   },
+   "operations": [
+    "current",
+    "list",
+    "history",
+    "send"
+   ],
+   "op_map": {
+    "current": {
+     "tool": "sessions_current",
+     "operation": "current",
+     "disabled": false
+    },
+    "list": {
+     "tool": "sessions_list",
+     "operation": "list",
+     "disabled": false
+    },
+    "history": {
+     "tool": "sessions_history",
+     "operation": "history",
+     "disabled": false
+    },
+    "send": {
+     "tool": "sessions_send",
+     "operation": "send",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "sessions_current",
+    "sessions_list",
+    "sessions_history",
+    "sessions_send"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/sessions.rs"
+   ]
+  },
+  {
+   "name": "sop",
+   "description": "Run Standard Operating Procedures: list, execute, advance, approve and inspect runs.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "sop_list",
+       "execute",
+       "advance",
+       "approve",
+       "status",
+       "propose",
+       "capture_run",
+       "sop_workshop_list",
+       "inspect",
+       "apply",
+       "reject",
+       "quarantine"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true
+   },
+   "operations": [
+    "sop_list",
+    "execute",
+    "advance",
+    "approve",
+    "status",
+    "propose",
+    "capture_run",
+    "sop_workshop_list",
+    "inspect",
+    "apply",
+    "reject",
+    "quarantine"
+   ],
+   "op_map": {
+    "sop_list": {
+     "tool": "sop_list",
+     "operation": "list",
+     "disabled": false
+    },
+    "execute": {
+     "tool": "sop_execute",
+     "operation": "execute",
+     "disabled": false
+    },
+    "advance": {
+     "tool": "sop_advance",
+     "operation": "advance",
+     "disabled": false
+    },
+    "approve": {
+     "tool": "sop_approve",
+     "operation": "approve",
+     "disabled": false
+    },
+    "status": {
+     "tool": "sop_status",
+     "operation": "status",
+     "disabled": false
+    },
+    "propose": {
+     "tool": "sop_workshop",
+     "operation": "propose",
+     "disabled": false
+    },
+    "capture_run": {
+     "tool": "sop_workshop",
+     "operation": "capture_run",
+     "disabled": false
+    },
+    "sop_workshop_list": {
+     "tool": "sop_workshop",
+     "operation": "list",
+     "disabled": false
+    },
+    "inspect": {
+     "tool": "sop_workshop",
+     "operation": "inspect",
+     "disabled": false
+    },
+    "apply": {
+     "tool": "sop_workshop",
+     "operation": "apply",
+     "disabled": false
+    },
+    "reject": {
+     "tool": "sop_workshop",
+     "operation": "reject",
+     "disabled": false
+    },
+    "quarantine": {
+     "tool": "sop_workshop",
+     "operation": "quarantine",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "sop_list",
+    "sop_execute",
+    "sop_advance",
+    "sop_approve",
+    "sop_status",
+    "sop_workshop"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-runtime/src/tools/sop_list.rs",
+    "crates/zeroclaw-runtime/src/tools/sop_execute.rs",
+    "crates/zeroclaw-runtime/src/tools/sop_advance.rs",
+    "crates/zeroclaw-runtime/src/tools/sop_approve.rs",
+    "crates/zeroclaw-runtime/src/tools/sop_status.rs",
+    "crates/zeroclaw-runtime/src/tools/sop_workshop.rs"
+   ]
+  },
+  {
+   "name": "read_skill",
+   "description": "Load a skill's full instructions on demand.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "read"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "read"
+   ],
+   "op_map": {
+    "read": {
+     "tool": "read_skill",
+     "operation": "read",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "read_skill"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": false,
+   "source_files": [
+    "crates/zeroclaw-runtime/src/tools/read_skill.rs"
+   ]
+  },
+  {
+   "name": "learn",
+   "description": "learn.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "learn"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "learn"
+   ],
+   "op_map": {
+    "learn": {
+     "tool": "learn",
+     "operation": "learn",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "learn"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": false,
+   "source_files": [
+    "crates/zeroclaw-runtime/src/tools/learn.rs"
+   ]
+  },
+  {
+   "name": "skills_list",
+   "description": "skills list.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "list"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "list"
+   ],
+   "op_map": {
+    "list": {
+     "tool": "skills_list",
+     "operation": "list",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "skills_list"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": false,
+   "source_files": [
+    "crates/zeroclaw-runtime/src/tools/skill_manage.rs"
+   ]
+  },
+  {
+   "name": "skill_view",
+   "description": "skill view.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "view"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "view"
+   ],
+   "op_map": {
+    "view": {
+     "tool": "skill_view",
+     "operation": "view",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "skill_view"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": false,
+   "source_files": [
+    "crates/zeroclaw-runtime/src/tools/skill_manage.rs"
+   ]
+  },
+  {
+   "name": "skill_manage",
+   "description": "skill manage.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "patch",
+       "write_file",
+       "archive"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true
+   },
+   "operations": [
+    "patch",
+    "write_file",
+    "archive"
+   ],
+   "op_map": {
+    "patch": {
+     "tool": "skill_manage",
+     "operation": "patch",
+     "disabled": false
+    },
+    "write_file": {
+     "tool": "skill_manage",
+     "operation": "write_file",
+     "disabled": false
+    },
+    "archive": {
+     "tool": "skill_manage",
+     "operation": "archive",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "skill_manage"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": false,
+   "source_files": [
+    "crates/zeroclaw-runtime/src/tools/skill_manage.rs"
+   ]
+  },
+  {
+   "name": "TodoWrite",
+   "description": "Render and update the live task tracker.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "write_task_list"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "write_task_list"
+   ],
+   "op_map": {
+    "write_task_list": {
+     "tool": "TodoWrite",
+     "operation": "write_task_list",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "TodoWrite"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": false,
+   "source_files": [
+    "crates/zeroclaw-runtime/src/tools/todo_write.rs"
+   ]
+  },
+  {
+   "name": "canvas",
+   "description": "Shared canvas store for rendered artifacts.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "clear",
+       "eval",
+       "render",
+       "snapshot"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true
+   },
+   "operations": [
+    "clear",
+    "eval",
+    "render",
+    "snapshot"
+   ],
+   "op_map": {
+    "clear": {
+     "tool": "canvas",
+     "operation": "clear",
+     "disabled": false
+    },
+    "eval": {
+     "tool": "canvas",
+     "operation": "eval",
+     "disabled": false
+    },
+    "render": {
+     "tool": "canvas",
+     "operation": "render",
+     "disabled": false
+    },
+    "snapshot": {
+     "tool": "canvas",
+     "operation": "snapshot",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "canvas"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/canvas.rs"
+   ]
+  },
+  {
+   "name": "deliver_file",
+   "description": "Deliver a workspace file to the client as an embedded resource.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "deliver"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "deliver"
+   ],
+   "op_map": {
+    "deliver": {
+     "tool": "deliver_file",
+     "operation": "deliver",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "deliver_file"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": false,
+   "source_files": [
+    "crates/zeroclaw-runtime/src/tools/deliver_file.rs"
+   ]
+  },
+  {
+   "name": "llm_task",
+   "description": "Run a prompt through a model with no tool access.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "run_subtask"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "run_subtask"
+   ],
+   "op_map": {
+    "run_subtask": {
+     "tool": "llm_task",
+     "operation": "run_subtask",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "llm_task"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": false,
+   "source_files": [
+    "crates/zeroclaw-tools/src/llm_task.rs"
+   ]
+  },
+  {
+   "name": "claude_code",
+   "description": "Drive the Claude Code CLI as a tool.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "run_cli"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "run_cli"
+   ],
+   "op_map": {
+    "run_cli": {
+     "tool": "claude_code",
+     "operation": "run_cli",
+     "disabled": true
+    }
+   },
+   "merged_from": [
+    "claude_code"
+   ],
+   "tier": "Host",
+   "compilation": "OptIn(OptInTool::ClaudeCode)",
+   "disabled": true,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/claude_code.rs"
+   ]
+  },
+  {
+   "name": "codex_cli",
+   "description": "Drive the Codex CLI as a tool.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "run_cli"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "run_cli"
+   ],
+   "op_map": {
+    "run_cli": {
+     "tool": "codex_cli",
+     "operation": "run_cli",
+     "disabled": true
+    }
+   },
+   "merged_from": [
+    "codex_cli"
+   ],
+   "tier": "Host",
+   "compilation": "OptIn(OptInTool::CodexCli)",
+   "disabled": true,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/codex_cli.rs"
+   ]
+  },
+  {
+   "name": "gemini_cli",
+   "description": "Drive the Gemini CLI as a tool.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "run_cli"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "run_cli"
+   ],
+   "op_map": {
+    "run_cli": {
+     "tool": "gemini_cli",
+     "operation": "run_cli",
+     "disabled": true
+    }
+   },
+   "merged_from": [
+    "gemini_cli"
+   ],
+   "tier": "Host",
+   "compilation": "OptIn(OptInTool::GeminiCli)",
+   "disabled": true,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/gemini_cli.rs"
+   ]
+  },
+  {
+   "name": "opencode_cli",
+   "description": "Drive the OpenCode CLI as a tool.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "run_cli"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "run_cli"
+   ],
+   "op_map": {
+    "run_cli": {
+     "tool": "opencode_cli",
+     "operation": "run_cli",
+     "disabled": true
+    }
+   },
+   "merged_from": [
+    "opencode_cli"
+   ],
+   "tier": "Host",
+   "compilation": "OptIn(OptInTool::OpenCodeCli)",
+   "disabled": true,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/opencode_cli.rs"
+   ]
+  },
+  {
+   "name": "a2a",
+   "description": "Agent-to-agent protocol: discover peers, send messages, inspect and cancel tasks.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "discover",
+       "send",
+       "get_task",
+       "cancel"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true
+   },
+   "operations": [
+    "discover",
+    "send",
+    "get_task",
+    "cancel"
+   ],
+   "op_map": {
+    "discover": {
+     "tool": "a2a_discover",
+     "operation": "discover",
+     "disabled": false
+    },
+    "send": {
+     "tool": "a2a_send",
+     "operation": "send",
+     "disabled": false
+    },
+    "get_task": {
+     "tool": "a2a_get_task",
+     "operation": "get_task",
+     "disabled": false
+    },
+    "cancel": {
+     "tool": "a2a_cancel",
+     "operation": "cancel",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "a2a_discover",
+    "a2a_send",
+    "a2a_get_task",
+    "a2a_cancel"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/a2a_client.rs"
+   ]
+  },
+  {
+   "name": "file_download",
+   "description": "Download a remote file into the workspace.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "download"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "download"
+   ],
+   "op_map": {
+    "download": {
+     "tool": "file_download",
+     "operation": "download",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "file_download"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/file_download.rs"
+   ]
+  },
+  {
+   "name": "security_ops",
+   "description": "Managed security operations: triage, runbooks and vulnerability parsing.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "alert_stats",
+       "generate_report",
+       "list_playbooks",
+       "parse_vulnerability",
+       "run_playbook",
+       "triage_alert"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true
+   },
+   "operations": [
+    "alert_stats",
+    "generate_report",
+    "list_playbooks",
+    "parse_vulnerability",
+    "run_playbook",
+    "triage_alert"
+   ],
+   "op_map": {
+    "alert_stats": {
+     "tool": "security_ops",
+     "operation": "alert_stats",
+     "disabled": false
+    },
+    "generate_report": {
+     "tool": "security_ops",
+     "operation": "generate_report",
+     "disabled": false
+    },
+    "list_playbooks": {
+     "tool": "security_ops",
+     "operation": "list_playbooks",
+     "disabled": false
+    },
+    "parse_vulnerability": {
+     "tool": "security_ops",
+     "operation": "parse_vulnerability",
+     "disabled": false
+    },
+    "run_playbook": {
+     "tool": "security_ops",
+     "operation": "run_playbook",
+     "disabled": false
+    },
+    "triage_alert": {
+     "tool": "security_ops",
+     "operation": "triage_alert",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "security_ops"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-runtime/src/tools/security_ops.rs"
+   ]
+  },
+  {
+   "name": "execute_pipeline",
+   "description": "Chain several tool calls as a pipeline.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "execute"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "execute"
+   ],
+   "op_map": {
+    "execute": {
+     "tool": "execute_pipeline",
+     "operation": "execute",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "execute_pipeline"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/pipeline.rs"
+   ]
+  },
+  {
+   "name": "tool_search",
+   "description": "Discover deferred tools by keyword without loading every schema.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "search"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "search"
+   ],
+   "op_map": {
+    "search": {
+     "tool": "tool_search",
+     "operation": "search",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "tool_search"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": false,
+   "source_files": [
+    "crates/zeroclaw-tools/src/tool_search.rs"
+   ]
+  },
+  {
+   "name": "mcp",
+   "description": "List and read resources and prompts exposed by connected MCP servers.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "mcp_resources_list",
+       "read",
+       "mcp_prompts_list",
+       "get"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true
+   },
+   "operations": [
+    "mcp_resources_list",
+    "read",
+    "mcp_prompts_list",
+    "get"
+   ],
+   "op_map": {
+    "mcp_resources_list": {
+     "tool": "mcp_resources",
+     "operation": "list",
+     "disabled": false
+    },
+    "read": {
+     "tool": "mcp_resources",
+     "operation": "read",
+     "disabled": false
+    },
+    "mcp_prompts_list": {
+     "tool": "mcp_prompts",
+     "operation": "list",
+     "disabled": false
+    },
+    "get": {
+     "tool": "mcp_prompts",
+     "operation": "get",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "mcp_resources",
+    "mcp_prompts"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/mcp_resources_tool.rs",
+    "crates/zeroclaw-tools/src/mcp_prompts_tool.rs"
+   ]
+  },
+  {
+   "name": "calculator",
+   "description": "Evaluate an arithmetic expression.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "calculate"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "calculate"
+   ],
+   "op_map": {
+    "calculate": {
+     "tool": "calculator",
+     "operation": "calculate",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "calculator"
+   ],
+   "tier": "Optional",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": false,
+   "source_files": [
+    "crates/zeroclaw-tools/src/calculator.rs"
+   ]
+  },
+  {
+   "name": "weather",
+   "description": "Look up current weather for a location.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "lookup"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "lookup"
+   ],
+   "op_map": {
+    "lookup": {
+     "tool": "weather",
+     "operation": "lookup",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "weather"
+   ],
+   "tier": "Optional",
+   "compilation": "External",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/weather_tool.rs"
+   ]
+  },
+  {
+   "name": "pushover",
+   "description": "pushover.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "notify"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "notify"
+   ],
+   "op_map": {
+    "notify": {
+     "tool": "pushover",
+     "operation": "notify",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "pushover"
+   ],
+   "tier": "Optional",
+   "compilation": "External",
+   "disabled": false,
+   "destructive": false,
+   "source_files": [
+    "crates/zeroclaw-tools/src/pushover.rs"
+   ]
+  },
+  {
+   "name": "screenshot",
+   "description": "Capture the screen.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "capture"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "capture"
+   ],
+   "op_map": {
+    "capture": {
+     "tool": "screenshot",
+     "operation": "capture",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "screenshot"
+   ],
+   "tier": "Optional",
+   "compilation": "External",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/screenshot.rs"
+   ]
+  },
+  {
+   "name": "image_info",
+   "description": "Read image metadata: format, dimensions, size.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "inspect"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "inspect"
+   ],
+   "op_map": {
+    "inspect": {
+     "tool": "image_info",
+     "operation": "inspect",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "image_info"
+   ],
+   "tier": "Optional",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": false,
+   "source_files": [
+    "crates/zeroclaw-tools/src/image_info.rs"
+   ]
+  },
+  {
+   "name": "browser_open",
+   "description": "Open a URL in the browser session.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "open"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "open"
+   ],
+   "op_map": {
+    "open": {
+     "tool": "browser_open",
+     "operation": "open",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "browser_open"
+   ],
+   "tier": "Optional",
+   "compilation": "External",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/browser_open.rs"
+   ]
+  },
+  {
+   "name": "browser",
+   "description": "Drive a headless browser: navigate, inspect, act and capture.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "click",
+       "close",
+       "fill",
+       "find",
+       "get_text",
+       "get_title",
+       "get_url",
+       "hover",
+       "is_visible",
+       "key_press",
+       "key_type",
+       "mouse_click",
+       "mouse_drag",
+       "mouse_move",
+       "open",
+       "press",
+       "screen_capture",
+       "screenshot",
+       "scroll",
+       "snapshot",
+       "type",
+       "wait"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true
+   },
+   "operations": [
+    "click",
+    "close",
+    "fill",
+    "find",
+    "get_text",
+    "get_title",
+    "get_url",
+    "hover",
+    "is_visible",
+    "key_press",
+    "key_type",
+    "mouse_click",
+    "mouse_drag",
+    "mouse_move",
+    "open",
+    "press",
+    "screen_capture",
+    "screenshot",
+    "scroll",
+    "snapshot",
+    "type",
+    "wait"
+   ],
+   "op_map": {
+    "click": {
+     "tool": "browser",
+     "operation": "click",
+     "disabled": false
+    },
+    "close": {
+     "tool": "browser",
+     "operation": "close",
+     "disabled": false
+    },
+    "fill": {
+     "tool": "browser",
+     "operation": "fill",
+     "disabled": false
+    },
+    "find": {
+     "tool": "browser",
+     "operation": "find",
+     "disabled": false
+    },
+    "get_text": {
+     "tool": "browser",
+     "operation": "get_text",
+     "disabled": false
+    },
+    "get_title": {
+     "tool": "browser",
+     "operation": "get_title",
+     "disabled": false
+    },
+    "get_url": {
+     "tool": "browser",
+     "operation": "get_url",
+     "disabled": false
+    },
+    "hover": {
+     "tool": "browser",
+     "operation": "hover",
+     "disabled": false
+    },
+    "is_visible": {
+     "tool": "browser",
+     "operation": "is_visible",
+     "disabled": false
+    },
+    "key_press": {
+     "tool": "browser",
+     "operation": "key_press",
+     "disabled": false
+    },
+    "key_type": {
+     "tool": "browser",
+     "operation": "key_type",
+     "disabled": false
+    },
+    "mouse_click": {
+     "tool": "browser",
+     "operation": "mouse_click",
+     "disabled": false
+    },
+    "mouse_drag": {
+     "tool": "browser",
+     "operation": "mouse_drag",
+     "disabled": false
+    },
+    "mouse_move": {
+     "tool": "browser",
+     "operation": "mouse_move",
+     "disabled": false
+    },
+    "open": {
+     "tool": "browser",
+     "operation": "open",
+     "disabled": false
+    },
+    "press": {
+     "tool": "browser",
+     "operation": "press",
+     "disabled": false
+    },
+    "screen_capture": {
+     "tool": "browser",
+     "operation": "screen_capture",
+     "disabled": false
+    },
+    "screenshot": {
+     "tool": "browser",
+     "operation": "screenshot",
+     "disabled": false
+    },
+    "scroll": {
+     "tool": "browser",
+     "operation": "scroll",
+     "disabled": false
+    },
+    "snapshot": {
+     "tool": "browser",
+     "operation": "snapshot",
+     "disabled": false
+    },
+    "type": {
+     "tool": "browser",
+     "operation": "type",
+     "disabled": false
+    },
+    "wait": {
+     "tool": "browser",
+     "operation": "wait",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "browser"
+   ],
+   "tier": "Optional",
+   "compilation": "External",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/browser.rs"
+   ]
+  },
+  {
+   "name": "browser_delegate",
+   "description": "Delegate a browser task to a sub-agent.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "delegate"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "delegate"
+   ],
+   "op_map": {
+    "delegate": {
+     "tool": "browser_delegate",
+     "operation": "delegate",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "browser_delegate"
+   ],
+   "tier": "Optional",
+   "compilation": "External",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/browser_delegate.rs"
+   ]
+  },
+  {
+   "name": "text_browser",
+   "description": "Render a web page as plain text.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "browse"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "browse"
+   ],
+   "op_map": {
+    "browse": {
+     "tool": "text_browser",
+     "operation": "browse",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "text_browser"
+   ],
+   "tier": "Optional",
+   "compilation": "External",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/text_browser.rs"
+   ]
+  },
+  {
+   "name": "http_request",
+   "description": "Make an HTTP request to an allowlisted domain.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "request"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "request"
+   ],
+   "op_map": {
+    "request": {
+     "tool": "http_request",
+     "operation": "request",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "http_request"
+   ],
+   "tier": "Optional",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/http_request.rs"
+   ]
+  },
+  {
+   "name": "web_search_tool",
+   "description": "Search the web and return results with citations.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "search"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "search"
+   ],
+   "op_map": {
+    "search": {
+     "tool": "web_search_tool",
+     "operation": "search",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "web_search_tool"
+   ],
+   "tier": "Optional",
+   "compilation": "External",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/web_search_tool.rs"
+   ]
+  },
+  {
+   "name": "notion",
+   "description": "Read and write Notion pages and databases.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "create_page",
+       "query_database",
+       "read_page",
+       "search",
+       "update_page"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true
+   },
+   "operations": [
+    "create_page",
+    "query_database",
+    "read_page",
+    "search",
+    "update_page"
+   ],
+   "op_map": {
+    "create_page": {
+     "tool": "notion",
+     "operation": "create_page",
+     "disabled": true
+    },
+    "query_database": {
+     "tool": "notion",
+     "operation": "query_database",
+     "disabled": true
+    },
+    "read_page": {
+     "tool": "notion",
+     "operation": "read_page",
+     "disabled": true
+    },
+    "search": {
+     "tool": "notion",
+     "operation": "search",
+     "disabled": true
+    },
+    "update_page": {
+     "tool": "notion",
+     "operation": "update_page",
+     "disabled": true
+    }
+   },
+   "merged_from": [
+    "notion"
+   ],
+   "tier": "Optional",
+   "compilation": "OptIn(OptInTool::Notion)",
+   "disabled": true,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/notion_tool.rs"
+   ]
+  },
+  {
+   "name": "jira",
+   "description": "Read and write Jira tickets.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "comment_ticket",
+       "create_ticket",
+       "get_ticket",
+       "list_projects",
+       "list_transitions",
+       "myself",
+       "search_tickets",
+       "transition_ticket"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true
+   },
+   "operations": [
+    "comment_ticket",
+    "create_ticket",
+    "get_ticket",
+    "list_projects",
+    "list_transitions",
+    "myself",
+    "search_tickets",
+    "transition_ticket"
+   ],
+   "op_map": {
+    "comment_ticket": {
+     "tool": "jira",
+     "operation": "comment_ticket",
+     "disabled": true
+    },
+    "create_ticket": {
+     "tool": "jira",
+     "operation": "create_ticket",
+     "disabled": true
+    },
+    "get_ticket": {
+     "tool": "jira",
+     "operation": "get_ticket",
+     "disabled": true
+    },
+    "list_projects": {
+     "tool": "jira",
+     "operation": "list_projects",
+     "disabled": true
+    },
+    "list_transitions": {
+     "tool": "jira",
+     "operation": "list_transitions",
+     "disabled": true
+    },
+    "myself": {
+     "tool": "jira",
+     "operation": "myself",
+     "disabled": true
+    },
+    "search_tickets": {
+     "tool": "jira",
+     "operation": "search_tickets",
+     "disabled": true
+    },
+    "transition_ticket": {
+     "tool": "jira",
+     "operation": "transition_ticket",
+     "disabled": true
+    }
+   },
+   "merged_from": [
+    "jira"
+   ],
+   "tier": "Optional",
+   "compilation": "OptIn(OptInTool::Jira)",
+   "disabled": true,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/jira_tool.rs"
+   ]
+  },
+  {
+   "name": "linkedin",
+   "description": "Read and write LinkedIn posts and profiles.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "comment",
+       "create_post",
+       "delete_post",
+       "get_content_strategy",
+       "get_engagement",
+       "get_profile",
+       "list_posts",
+       "react"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true
+   },
+   "operations": [
+    "comment",
+    "create_post",
+    "delete_post",
+    "get_content_strategy",
+    "get_engagement",
+    "get_profile",
+    "list_posts",
+    "react"
+   ],
+   "op_map": {
+    "comment": {
+     "tool": "linkedin",
+     "operation": "comment",
+     "disabled": true
+    },
+    "create_post": {
+     "tool": "linkedin",
+     "operation": "create_post",
+     "disabled": true
+    },
+    "delete_post": {
+     "tool": "linkedin",
+     "operation": "delete_post",
+     "disabled": true
+    },
+    "get_content_strategy": {
+     "tool": "linkedin",
+     "operation": "get_content_strategy",
+     "disabled": true
+    },
+    "get_engagement": {
+     "tool": "linkedin",
+     "operation": "get_engagement",
+     "disabled": true
+    },
+    "get_profile": {
+     "tool": "linkedin",
+     "operation": "get_profile",
+     "disabled": true
+    },
+    "list_posts": {
+     "tool": "linkedin",
+     "operation": "list_posts",
+     "disabled": true
+    },
+    "react": {
+     "tool": "linkedin",
+     "operation": "react",
+     "disabled": true
+    }
+   },
+   "merged_from": [
+    "linkedin"
+   ],
+   "tier": "Optional",
+   "compilation": "OptIn(OptInTool::LinkedIn)",
+   "disabled": true,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/linkedin.rs"
+   ]
+  },
+  {
+   "name": "composio",
+   "description": "Run Composio-connected app actions.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "connect",
+       "connected_accounts",
+       "execute",
+       "list",
+       "list_accounts"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true
+   },
+   "operations": [
+    "connect",
+    "connected_accounts",
+    "execute",
+    "list",
+    "list_accounts"
+   ],
+   "op_map": {
+    "connect": {
+     "tool": "composio",
+     "operation": "connect",
+     "disabled": true
+    },
+    "connected_accounts": {
+     "tool": "composio",
+     "operation": "connected_accounts",
+     "disabled": true
+    },
+    "execute": {
+     "tool": "composio",
+     "operation": "execute",
+     "disabled": true
+    },
+    "list": {
+     "tool": "composio",
+     "operation": "list",
+     "disabled": true
+    },
+    "list_accounts": {
+     "tool": "composio",
+     "operation": "list_accounts",
+     "disabled": true
+    }
+   },
+   "merged_from": [
+    "composio"
+   ],
+   "tier": "Optional",
+   "compilation": "OptIn(OptInTool::Composio)",
+   "disabled": true,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/composio.rs"
+   ]
+  },
+  {
+   "name": "google_workspace",
+   "description": "Google Workspace mail, calendar, Drive and Docs.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "service/resource/method"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "service/resource/method"
+   ],
+   "op_map": {
+    "service/resource/method": {
+     "tool": "google_workspace",
+     "operation": "service/resource/method",
+     "disabled": true
+    }
+   },
+   "merged_from": [
+    "google_workspace"
+   ],
+   "tier": "Optional",
+   "compilation": "OptIn(OptInTool::GoogleWorkspace)",
+   "disabled": true,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/google_workspace.rs"
+   ]
+  },
+  {
+   "name": "microsoft365",
+   "description": "Microsoft 365 mail, calendar, OneDrive, SharePoint and Teams.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "calendar_event_create",
+       "calendar_event_delete",
+       "calendar_events_list",
+       "mail_list",
+       "mail_send",
+       "onedrive_download",
+       "onedrive_list",
+       "sharepoint_search",
+       "teams_message_list",
+       "teams_message_send"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true
+   },
+   "operations": [
+    "calendar_event_create",
+    "calendar_event_delete",
+    "calendar_events_list",
+    "mail_list",
+    "mail_send",
+    "onedrive_download",
+    "onedrive_list",
+    "sharepoint_search",
+    "teams_message_list",
+    "teams_message_send"
+   ],
+   "op_map": {
+    "calendar_event_create": {
+     "tool": "microsoft365",
+     "operation": "calendar_event_create",
+     "disabled": true
+    },
+    "calendar_event_delete": {
+     "tool": "microsoft365",
+     "operation": "calendar_event_delete",
+     "disabled": true
+    },
+    "calendar_events_list": {
+     "tool": "microsoft365",
+     "operation": "calendar_events_list",
+     "disabled": true
+    },
+    "mail_list": {
+     "tool": "microsoft365",
+     "operation": "mail_list",
+     "disabled": true
+    },
+    "mail_send": {
+     "tool": "microsoft365",
+     "operation": "mail_send",
+     "disabled": true
+    },
+    "onedrive_download": {
+     "tool": "microsoft365",
+     "operation": "onedrive_download",
+     "disabled": true
+    },
+    "onedrive_list": {
+     "tool": "microsoft365",
+     "operation": "onedrive_list",
+     "disabled": true
+    },
+    "sharepoint_search": {
+     "tool": "microsoft365",
+     "operation": "sharepoint_search",
+     "disabled": true
+    },
+    "teams_message_list": {
+     "tool": "microsoft365",
+     "operation": "teams_message_list",
+     "disabled": true
+    },
+    "teams_message_send": {
+     "tool": "microsoft365",
+     "operation": "teams_message_send",
+     "disabled": true
+    }
+   },
+   "merged_from": [
+    "microsoft365"
+   ],
+   "tier": "Optional",
+   "compilation": "OptIn(OptInTool::Microsoft365)",
+   "disabled": true,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/microsoft365/mod.rs"
+   ]
+  },
+  {
+   "name": "project_intel",
+   "description": "Project intelligence: status reports, risk scans and effort estimates.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "draft_update",
+       "effort_estimate",
+       "risk_scan",
+       "sprint_summary",
+       "status_report"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true
+   },
+   "operations": [
+    "draft_update",
+    "effort_estimate",
+    "risk_scan",
+    "sprint_summary",
+    "status_report"
+   ],
+   "op_map": {
+    "draft_update": {
+     "tool": "project_intel",
+     "operation": "draft_update",
+     "disabled": true
+    },
+    "effort_estimate": {
+     "tool": "project_intel",
+     "operation": "effort_estimate",
+     "disabled": true
+    },
+    "risk_scan": {
+     "tool": "project_intel",
+     "operation": "risk_scan",
+     "disabled": true
+    },
+    "sprint_summary": {
+     "tool": "project_intel",
+     "operation": "sprint_summary",
+     "disabled": true
+    },
+    "status_report": {
+     "tool": "project_intel",
+     "operation": "status_report",
+     "disabled": true
+    }
+   },
+   "merged_from": [
+    "project_intel"
+   ],
+   "tier": "Optional",
+   "compilation": "OptIn(OptInTool::ProjectIntel)",
+   "disabled": true,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/project_intel.rs"
+   ]
+  },
+  {
+   "name": "report_template",
+   "description": "Render a report from a template.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "render_template"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "render_template"
+   ],
+   "op_map": {
+    "render_template": {
+     "tool": "report_template",
+     "operation": "render_template",
+     "disabled": true
+    }
+   },
+   "merged_from": [
+    "report_template"
+   ],
+   "tier": "Optional",
+   "compilation": "OptIn(OptInTool::ProjectIntel)",
+   "disabled": true,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/report_template_tool.rs"
+   ]
+  },
+  {
+   "name": "claude_code_runner",
+   "description": "Run Claude Code as a background runner.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "run_cli"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "run_cli"
+   ],
+   "op_map": {
+    "run_cli": {
+     "tool": "claude_code_runner",
+     "operation": "run_cli",
+     "disabled": true
+    }
+   },
+   "merged_from": [
+    "claude_code_runner"
+   ],
+   "tier": "Optional",
+   "compilation": "OptIn(OptInTool::ClaudeCodeRunner)",
+   "disabled": true,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/claude_code_runner.rs"
+   ]
+  },
+  {
+   "name": "backup",
+   "description": "Create, list, verify and restore shared data-directory backups.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "create",
+       "list",
+       "verify",
+       "restore"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true
+   },
+   "operations": [
+    "create",
+    "list",
+    "verify",
+    "restore"
+   ],
+   "op_map": {
+    "create": {
+     "tool": "backup",
+     "operation": "create",
+     "disabled": false
+    },
+    "list": {
+     "tool": "backup",
+     "operation": "list",
+     "disabled": false
+    },
+    "verify": {
+     "tool": "backup",
+     "operation": "verify",
+     "disabled": false
+    },
+    "restore": {
+     "tool": "backup",
+     "operation": "restore",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "backup"
+   ],
+   "tier": "Optional",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/backup_tool.rs"
+   ]
+  },
+  {
+   "name": "data_management",
+   "description": "Retention preview and storage statistics for the shared data directory.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "retention_status",
+       "purge",
+       "stats"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true
+   },
+   "operations": [
+    "retention_status",
+    "purge",
+    "stats"
+   ],
+   "op_map": {
+    "retention_status": {
+     "tool": "data_management",
+     "operation": "retention_status",
+     "disabled": false
+    },
+    "purge": {
+     "tool": "data_management",
+     "operation": "purge",
+     "disabled": false
+    },
+    "stats": {
+     "tool": "data_management",
+     "operation": "stats",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "data_management"
+   ],
+   "tier": "Optional",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/data_management.rs"
+   ]
+  },
+  {
+   "name": "cloud",
+   "description": "Cloud architecture advisory: IaC review, migration assessment, cost and patterns.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "architecture_review",
+       "assess_migration",
+       "cost_analysis",
+       "review_iac",
+       "list",
+       "match"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true
+   },
+   "operations": [
+    "architecture_review",
+    "assess_migration",
+    "cost_analysis",
+    "review_iac",
+    "list",
+    "match"
+   ],
+   "op_map": {
+    "architecture_review": {
+     "tool": "cloud_ops",
+     "operation": "architecture_review",
+     "disabled": false
+    },
+    "assess_migration": {
+     "tool": "cloud_ops",
+     "operation": "assess_migration",
+     "disabled": false
+    },
+    "cost_analysis": {
+     "tool": "cloud_ops",
+     "operation": "cost_analysis",
+     "disabled": false
+    },
+    "review_iac": {
+     "tool": "cloud_ops",
+     "operation": "review_iac",
+     "disabled": false
+    },
+    "list": {
+     "tool": "cloud_patterns",
+     "operation": "list",
+     "disabled": false
+    },
+    "match": {
+     "tool": "cloud_patterns",
+     "operation": "match",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "cloud_ops",
+    "cloud_patterns"
+   ],
+   "tier": "Optional",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/cloud_ops.rs",
+    "crates/zeroclaw-tools/src/cloud_patterns.rs"
+   ]
+  },
+  {
+   "name": "image_gen",
+   "description": "Generate an image from a prompt.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "generate"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "generate"
+   ],
+   "op_map": {
+    "generate": {
+     "tool": "image_gen",
+     "operation": "generate",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "image_gen"
+   ],
+   "tier": "Optional",
+   "compilation": "External",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/image_gen.rs"
+   ]
+  },
+  {
+   "name": "file_uploads",
+   "description": "file uploads.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "upload",
+       "upload_bundle"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true
+   },
+   "operations": [
+    "upload",
+    "upload_bundle"
+   ],
+   "op_map": {
+    "upload": {
+     "tool": "file_upload",
+     "operation": "upload",
+     "disabled": false
+    },
+    "upload_bundle": {
+     "tool": "file_upload_bundle",
+     "operation": "upload_bundle",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "file_upload",
+    "file_upload_bundle"
+   ],
+   "tier": "Optional",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": false,
+   "source_files": [
+    "crates/zeroclaw-tools/src/file_upload.rs",
+    "crates/zeroclaw-tools/src/file_upload_bundle.rs"
+   ]
+  },
+  {
+   "name": "discord_search",
+   "description": "Search Discord message history.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "search"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "search"
+   ],
+   "op_map": {
+    "search": {
+     "tool": "discord_search",
+     "operation": "search",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "discord_search"
+   ],
+   "tier": "Optional",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/discord_search.rs"
+   ]
+  },
+  {
+   "name": "email",
+   "description": "Search and read mail in a configured IMAP mailbox. Read-only.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "search",
+       "read"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true
+   },
+   "operations": [
+    "search",
+    "read"
+   ],
+   "op_map": {
+    "search": {
+     "tool": "email_search",
+     "operation": "search",
+     "disabled": false
+    },
+    "read": {
+     "tool": "email_read",
+     "operation": "read",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "email_search",
+    "email_read"
+   ],
+   "tier": "Optional",
+   "compilation": "External",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/email_search.rs",
+    "crates/zeroclaw-tools/src/email_read.rs"
+   ]
+  },
+  {
+   "name": "knowledge",
+   "description": "Knowledge graph of decisions, patterns, lessons and experts.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "capture",
+       "search",
+       "relate",
+       "suggest",
+       "expert_find",
+       "lessons_extract",
+       "graph_stats",
+       "graph_neighbors",
+       "client_network",
+       "interaction_log"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [
+     "action"
+    ],
+    "additionalProperties": true
+   },
+   "operations": [
+    "capture",
+    "search",
+    "relate",
+    "suggest",
+    "expert_find",
+    "lessons_extract",
+    "graph_stats",
+    "graph_neighbors",
+    "client_network",
+    "interaction_log"
+   ],
+   "op_map": {
+    "capture": {
+     "tool": "knowledge",
+     "operation": "capture",
+     "disabled": false
+    },
+    "search": {
+     "tool": "knowledge",
+     "operation": "search",
+     "disabled": false
+    },
+    "relate": {
+     "tool": "knowledge",
+     "operation": "relate",
+     "disabled": false
+    },
+    "suggest": {
+     "tool": "knowledge",
+     "operation": "suggest",
+     "disabled": false
+    },
+    "expert_find": {
+     "tool": "knowledge",
+     "operation": "expert_find",
+     "disabled": false
+    },
+    "lessons_extract": {
+     "tool": "knowledge",
+     "operation": "lessons_extract",
+     "disabled": false
+    },
+    "graph_stats": {
+     "tool": "knowledge",
+     "operation": "graph_stats",
+     "disabled": false
+    },
+    "graph_neighbors": {
+     "tool": "knowledge",
+     "operation": "graph_neighbors",
+     "disabled": false
+    },
+    "client_network": {
+     "tool": "knowledge",
+     "operation": "client_network",
+     "disabled": false
+    },
+    "interaction_log": {
+     "tool": "knowledge",
+     "operation": "interaction_log",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "knowledge"
+   ],
+   "tier": "Optional",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": true,
+   "source_files": [
+    "crates/zeroclaw-tools/src/knowledge_tool.rs"
+   ]
+  },
+  {
+   "name": "compose",
+   "description": "Assemble the context for a task in one call: rank the workspace files by relevance and inline the best ones.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "assemble"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "assemble"
+   ],
+   "op_map": {
+    "assemble": {
+     "tool": "compose",
+     "operation": "assemble",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "compose"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": false,
+   "source_files": [
+    "crates/zeroclaw-runtime/src/tools/compose.rs"
+   ]
+  },
+  {
+   "name": "expand",
+   "description": "Retrieve a tool output that was archived because it was too large for the conversation.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "retrieve"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "retrieve"
+   ],
+   "op_map": {
+    "retrieve": {
+     "tool": "expand",
+     "operation": "retrieve",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "expand"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": false,
+   "source_files": [
+    "crates/zeroclaw-runtime/src/tools/expand.rs"
+   ]
+  },
+  {
+   "name": "ast_grep",
+   "description": "Search code by structure with an ast-grep pattern or syntax kind.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "search"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "search"
+   ],
+   "op_map": {
+    "search": {
+     "tool": "ast_grep",
+     "operation": "search",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "ast_grep"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": false,
+   "source_files": [
+    "crates/zeroclaw-runtime/src/tools/ast_grep.rs"
+   ]
+  },
+  {
+   "name": "ast_edit",
+   "description": "Rewrite code by structure, with a preview before anything is written.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "rewrite"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "rewrite"
+   ],
+   "op_map": {
+    "rewrite": {
+     "tool": "ast_edit",
+     "operation": "rewrite",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "ast_edit"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": false,
+   "source_files": [
+    "crates/zeroclaw-runtime/src/tools/ast_grep.rs"
+   ]
+  },
+  {
+   "name": "callgraph",
+   "description": "Show what calls a function and what it calls.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "analyse"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "analyse"
+   ],
+   "op_map": {
+    "analyse": {
+     "tool": "callgraph",
+     "operation": "analyse",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "callgraph"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": false,
+   "source_files": [
+    "crates/zeroclaw-runtime/src/tools/callgraph.rs"
+   ]
+  },
+  {
+   "name": "graph",
+   "description": "Show the file-level dependency graph of the workspace.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "dependencies"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "dependencies"
+   ],
+   "op_map": {
+    "dependencies": {
+     "tool": "graph",
+     "operation": "dependencies",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "graph"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": false,
+   "source_files": [
+    "crates/zeroclaw-runtime/src/tools/callgraph.rs"
+   ]
+  },
+  {
+   "name": "radar",
+   "description": "Report where the context window went: the per-source breakdown of the last request.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "action": {
+      "type": "string",
+      "enum": [
+       "report"
+      ],
+      "description": "Operation to perform."
+     }
+    },
+    "required": [],
+    "additionalProperties": true
+   },
+   "operations": [
+    "report"
+   ],
+   "op_map": {
+    "report": {
+     "tool": "radar",
+     "operation": "report",
+     "disabled": false
+    }
+   },
+   "merged_from": [
+    "radar"
+   ],
+   "tier": "Host",
+   "compilation": "Always",
+   "disabled": false,
+   "destructive": false,
+   "source_files": [
+    "crates/zeroclaw-runtime/src/tools/radar.rs"
+   ]
+  }
+ ]
+}

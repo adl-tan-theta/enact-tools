@@ -1,0 +1,941 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>enact-agent · Tool &amp; Hook Surface Review vs oh-my-pi and lean-ctx</title>
+<style>
+:root{
+  --bg:#0e1116; --bg2:#141922; --panel:#171d27; --panel2:#1c2430;
+  --line:#253040; --line2:#2f3b4d;
+  --tx:#e6edf6; --tx2:#9fb0c6; --tx3:#6b7c92;
+  --acc:#5b9cff; --acc2:#7db4ff;
+  --keep:#3fb950; --enhance:#3b82f6; --merge:#e3a008; --add:#a371f7;
+  --ext:#8b98a9; --disable:#6e7b8d; --warn:#f0883e; --bad:#f85149;
+  --c-add:#a371f7; --c-merge:#e3a008; --c-keep:#3fb950;
+  --c-enhance:#3b82f6; --c-ext:#8b98a9; --c-disable:#6e7b8d;
+  --r:10px; --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+html[data-theme=light]{
+  --bg:#f6f8fb; --bg2:#ffffff; --panel:#ffffff; --panel2:#f0f4f9;
+  --line:#dde5ee; --line2:#c9d5e3;
+  --tx:#16202e; --tx2:#4a5b70; --tx3:#7c8ca0;
+  --acc:#1668d6; --acc2:#0d5ac4;
+  --keep:#1a7f37; --enhance:#0969da; --merge:#9a6700; --add:#8250df;
+  --ext:#6e7b8d; --disable:#8c959f; --warn:#bc4c00; --bad:#cf222e;
+  --c-add:#8250df; --c-merge:#9a6700; --c-keep:#1a7f37;
+  --c-enhance:#0969da; --c-ext:#6e7b8d; --c-disable:#8c959f;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:86px}
+body{margin:0;background:var(--bg);color:var(--tx);
+  font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased}
+a{color:var(--acc);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:1400px;margin:0 auto;padding:0 24px}
+
+/* ---- header ---- */
+header{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.hd{display:flex;align-items:center;gap:18px;padding:13px 0}
+.logo{font-weight:700;letter-spacing:-.02em;font-size:16px;white-space:nowrap}
+.logo span{color:var(--tx3);font-weight:500}
+nav{display:flex;gap:2px;flex:1;overflow-x:auto;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav a{padding:6px 11px;border-radius:7px;color:var(--tx2);font-size:13px;font-weight:500;white-space:nowrap}
+nav a:hover{background:var(--panel2);color:var(--tx);text-decoration:none}
+.tgl{border:1px solid var(--line2);background:var(--panel);color:var(--tx2);border-radius:8px;
+  padding:6px 11px;cursor:pointer;font-size:13px;white-space:nowrap}
+.tgl:hover{border-color:var(--acc);color:var(--tx)}
+
+/* ---- hero ---- */
+.hero{padding:52px 0 30px;border-bottom:1px solid var(--line)}
+.eyebrow{font:600 11px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--acc);margin-bottom:14px}
+h1{font-size:clamp(28px,4.2vw,44px);line-height:1.12;letter-spacing:-.03em;margin:0 0 14px;font-weight:760}
+.sub{color:var(--tx2);font-size:16px;max-width:900px;margin:0}
+.sub code{font:13px var(--mono);background:var(--panel2);padding:2px 6px;border-radius:5px;color:var(--acc2)}
+
+/* ---- stats ---- */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:12px;margin-top:30px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:15px 16px}
+.stat .n{font:700 27px/1.1 var(--mono);letter-spacing:-.02em}
+.stat .l{font-size:11.5px;color:var(--tx3);margin-top:5px;text-transform:uppercase;letter-spacing:.07em;font-weight:600}
+.stat .d{font-size:12px;color:var(--tx2);margin-top:7px}
+.stat.a .n{color:var(--acc)} .stat.k .n{color:var(--keep)}
+.stat.m .n{color:var(--merge)} .stat.x .n{color:var(--add)} .stat.d .n{color:var(--disable)}
+
+/* ---- sections ---- */
+section{padding:44px 0;border-bottom:1px solid var(--line)}
+.shead{display:flex;align-items:flex-end;gap:14px;margin-bottom:8px;flex-wrap:wrap}
+h2{font-size:25px;letter-spacing:-.02em;margin:0;font-weight:700}
+h3{font-size:16.5px;margin:26px 0 11px;font-weight:650;letter-spacing:-.01em}
+.lede{color:var(--tx2);margin:0 0 22px;max-width:1000px;font-size:14.5px}
+.tag{font:600 10.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--tx3);border:1px solid var(--line2);border-radius:99px;padding:5px 10px}
+
+/* ---- cards ---- */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px}
+.card.hi{border-color:color-mix(in srgb,var(--acc) 45%,var(--line))}
+.card h4{margin:0 0 4px;font-size:16px;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
+.card .who{font:11px var(--mono);color:var(--tx3);margin-bottom:14px}
+.card ul{margin:0;padding-left:18px;color:var(--tx2);font-size:13.5px}
+.card li{margin-bottom:6px}
+.card li b{color:var(--tx);font-weight:620}
+.pill{display:inline-block;font:600 10px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;
+  padding:4px 8px;border-radius:99px;border:1px solid var(--line2);color:var(--tx3)}
+.pill.acc{color:var(--acc);border-color:color-mix(in srgb,var(--acc) 40%,transparent)}
+.pill.k{color:var(--keep);border-color:color-mix(in srgb,var(--keep) 40%,transparent)}
+.pill.m{color:var(--merge);border-color:color-mix(in srgb,var(--merge) 40%,transparent)}
+.pill.x{color:var(--add);border-color:color-mix(in srgb,var(--add) 40%,transparent)}
+.pill.d{color:var(--disable);border-color:color-mix(in srgb,var(--disable) 40%,transparent)}
+
+/* ---- callout ---- */
+.call{border:1px solid var(--line);border-left:3px solid var(--acc);background:var(--panel);
+  border-radius:0 var(--r) var(--r) 0;padding:16px 18px;margin:18px 0}
+.call.warn{border-left-color:var(--warn)} .call.bad{border-left-color:var(--bad)} .call.good{border-left-color:var(--keep)}
+.call h4{margin:0 0 7px;font-size:14.5px;font-weight:650}
+.call p{margin:0;color:var(--tx2);font-size:13.5px}
+.call p+p{margin-top:8px}
+
+/* ---- table ---- */
+.tbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:0 0 14px}
+input[type=search],select{background:var(--panel);border:1px solid var(--line2);color:var(--tx);
+  border-radius:8px;padding:8px 11px;font-size:13px;font-family:inherit}
+input[type=search]{min-width:280px;flex:1;max-width:420px}
+input[type=search]:focus,select:focus{outline:none;border-color:var(--acc)}
+.count{font:12px var(--mono);color:var(--tx3);margin-left:auto}
+.tbl{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{text-align:left;font:600 10.5px/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--tx3);padding:11px 13px;border-bottom:1px solid var(--line);background:var(--panel2);
+  position:sticky;top:0;white-space:nowrap;z-index:2}
+td{padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--panel2)}
+code,td .mono{font-family:var(--mono);font-size:12.3px}
+.tname{font-family:var(--mono);font-size:12.6px;font-weight:600;color:var(--tx);white-space:nowrap}
+.ops{color:var(--tx3);font-size:11.5px;max-width:390px;line-height:1.5}
+.ops b{color:var(--tx2);font-weight:500}
+.v{font:700 10px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:4px 7px;
+  border-radius:5px;white-space:nowrap;display:inline-block}
+.v-KEEP{color:var(--keep);background:color-mix(in srgb,var(--keep) 15%,transparent)}
+.v-ENHANCE{color:var(--enhance);background:color-mix(in srgb,var(--enhance) 15%,transparent)}
+.v-MERGE{color:var(--merge);background:color-mix(in srgb,var(--merge) 16%,transparent)}
+.v-ADD{color:var(--add);background:color-mix(in srgb,var(--add) 16%,transparent)}
+.v-EXT{color:var(--ext);background:color-mix(in srgb,var(--ext) 16%,transparent)}
+.v-DISABLE{color:var(--disable);background:color-mix(in srgb,var(--disable) 16%,transparent)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.dot.y{background:var(--keep);box-shadow:0 0 7px color-mix(in srgb,var(--keep) 55%,transparent)}
+.dot.p{background:var(--acc);box-shadow:0 0 7px color-mix(in srgb,var(--acc) 55%,transparent)}
+.dot.n{background:var(--line2)}
+.dot.x{background:var(--disable)}
+.tier{font:600 10.5px/1 var(--mono);letter-spacing:.05em;padding:4px 7px;border-radius:5px;
+  border:1px solid var(--line2);color:var(--tx3);white-space:nowrap}
+.tier.Core{color:var(--keep);border-color:color-mix(in srgb,var(--keep) 40%,transparent)}
+.tier.Host{color:var(--acc);border-color:color-mix(in srgb,var(--acc) 40%,transparent)}
+.tier.Optional{color:var(--tx3)}
+.comp{font-size:11.5px;color:var(--tx3);font-family:var(--mono)}
+.off{color:var(--disable)}
+.note{color:var(--tx2);font-size:12.6px;max-width:460px}
+
+/* ---- bars ---- */
+.bars{display:flex;flex-direction:column;gap:9px;margin:16px 0}
+.bar{display:grid;grid-template-columns:150px 1fr 52px;align-items:center;gap:12px;font-size:13px}
+.bar .t{color:var(--tx2)}
+.bar .r{height:9px;background:var(--panel2);border-radius:99px;overflow:hidden}
+.bar .f{height:100%;border-radius:99px;min-width:6px}
+.bar .q{font:600 12px var(--mono);color:var(--tx3);text-align:right}
+
+/* ---- merge ---- */
+.mrow{display:grid;grid-template-columns:130px 1fr 92px;gap:14px;align-items:center;
+  padding:12px 0;border-bottom:1px solid var(--line)}
+.mrow:last-child{border-bottom:none}
+.mrow .fam{font-family:var(--mono);font-weight:650;color:var(--acc2);font-size:13.5px}
+.mrow .from{font:11.5px/1.7 var(--mono);color:var(--tx3)}
+.mrow .from b{color:var(--tx2);font-weight:500}
+.mrow .to{font:600 11px/1 var(--mono);color:var(--merge);text-align:right}
+
+/* ---- roadmap ---- */
+.rm{display:grid;gap:14px}
+.phase{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px}
+.phase h4{margin:0 0 4px;font-size:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.phase .meta{font:11px var(--mono);color:var(--tx3);margin-bottom:14px}
+.phase ul{margin:0;padding-left:19px;color:var(--tx2);font-size:13.5px}
+.phase li{margin-bottom:8px}
+.phase li b{color:var(--tx)}
+.gantt{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:6px}
+footer{padding:34px 0 56px;color:var(--tx3);font-size:12.5px}
+footer a{color:var(--tx2)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media(max-width:760px){
+  .gantt{grid-template-columns:1fr}.bar{grid-template-columns:110px 1fr 44px}
+  .mrow{grid-template-columns:1fr}.mrow .to{text-align:left}
+}
+</style>
+</head>
+<body>
+<header><div class="wrap hd">
+  <div class="logo">enact-tools <span>· surface review</span></div>
+  <nav>
+    <a href="#summary">Summary</a>
+    <a href="#systems">The Three Systems</a>
+    <a href="#baseline">Baseline</a>
+    <a href="#matrix">Full Matrix</a>
+    <a href="#additions">New Tools</a>
+    <a href="#hooks">Hooks</a>
+    <a href="#portability">Portability</a>
+    <a href="#jcode">jcode</a>
+    <a href="#consolidate">Consolidation</a>
+    <a href="#roadmap">Roadmap</a>
+    <a href="#method">Method</a>
+  </nav>
+  <button class="tgl" id="theme">Light mode</button>
+</div></header>
+
+<div class="wrap">
+
+<section class="hero" id="summary">
+  <div class="eyebrow">Comparative Analysis · 2026-11-12</div>
+  <h1>What enact-agent should borrow from<br>oh-my-pi and lean-ctx</h1>
+  <p class="sub">A full audit of three agent tool surfaces — <code>enact-agent</code> (93 built-ins / 226 operations),
+  <code>oh-my-pi</code> (30 built-ins) and <code>lean-ctx</code> (51 MCP tools) — plus their hook subsystems,
+  distilled into a concrete <b>add / keep / enhance / merge</b> plan.</p>
+
+  <div class="stats">
+    <div class="stat"><div class="n">109</div><div class="l">enact built-ins</div><div class="d">244 operations, 3 tiers</div></div>
+    <div class="stat d"><div class="n">13</div><div class="l">disabled in build</div><div class="d">48 operations off</div></div>
+    <div class="stat m"><div class="n">83</div><div class="l">after merging</div><div class="d">from 109, zero ops lost</div></div>
+    <div class="stat x"><div class="n">44</div><div class="l">new tools</div><div class="d">from oh-my-pi + lean-ctx</div></div>
+    <div class="stat a"><div class="n">25</div><div class="l">hook capabilities</div><div class="d">1 blocker identified</div></div>
+  </div>
+</section>
+
+<section id="systems">
+  <div class="shead"><h2>The three systems</h2><span class="tag">at a glance</span></div>
+  <p class="lede">Each solves a different problem, and each is stronger than the others somewhere.
+  The point of the comparison is not to copy a tool list — it is to see which <i>mechanisms</i> close gaps in enact-agent.</p>
+
+  <div class="cards">
+    <div class="card hi">
+      <h4>enact-agent <span class="pill acc">baseline</span></h4>
+      <div class="who">zeroclaw fork · Rust · 93 built-ins · 226 ops</div>
+      <ul>
+        <li><b>Rigorous three-axis model.</b> Tier (Core 11 / Host 51 / Optional 31) × compilation (Always / External / OptIn) × catalog selector (<code>[tools].optional</code>). Neither competitor has anything close.</li>
+        <li><b>Strongest safety surface.</b> Risk profiles, Landlock/Bubblewrap/Seatbelt/Docker sandboxes, approval gates, HMAC-signed tool receipts, default-deny MCP bundle scoping.</li>
+        <li><b>Unique runtime primitives.</b> SOP engine with approval gates and resumable runs; 30+ channel adapters; A2A client; ACP; gateway + web dashboard.</li>
+        <li><b>The gap.</b> Hooks are a Rust trait only — <b>no user can write a hook</b>. No structural code tools, no context tooling, no plan/goal mode.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h4>oh-my-pi <span class="pill k">tool craft</span></h4>
+      <div class="who">Rust + TS monorepo · 30 built-ins + 3 hidden</div>
+      <ul>
+        <li><b>Schema budget discipline.</b> Tools are <code>essential</code> (13, always top-level) or <code>discoverable</code> (mounted behind <code>xd://</code> devices, found by BM25). Unused schemas never enter the request.</li>
+        <li><b>Best hook system of the three.</b> ~45 events, plain TypeScript files, <code>.omp/hooks/pre|post/*.ts</code>, with documented ordering, budgets and fail-closed semantics.</li>
+        <li><b>Richest code intelligence.</b> <code>ast_grep</code>, <code>ast_edit</code>, <code>lsp</code>, <code>debug</code>, <code>find</code> — none of which enact-agent has.</li>
+        <li><b>Modes.</b> Plan, Goal and Vibe. Plus approval tiers (read/write/exec) and restricted folders.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h4>lean-ctx <span class="pill m">context engine</span></h4>
+      <div class="who">Rust · 51 public MCP tools · 12-tool lazy core</div>
+      <ul>
+        <li><b>Already did the consolidation.</b> 82 registry entry points → <b>35 canonical tools</b> with typed <code>action</code> enums, shipped in 3.11.5. Legacy names survive as aliases.</li>
+        <li><b>Context as a first-class surface.</b> <code>compose</code>, <code>expand</code>, <code>compress</code>, <code>preload/prefetch</code>, <code>control</code> overlays, budget radar.</li>
+        <li><b>Hook dialects for 11 hosts.</b> Installs into Claude Code, Codex, Cursor, Windsurf, Gemini, Copilot, Kiro, Cline, Vibe, CodeBuddy, Qoder.</li>
+        <li><b>Two ideas worth stealing outright:</b> <i>mirror, don't grant</i> (a rewrite may only approve what the host would have approved anyway) and <i>never invalidate the cache prefix</i>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="call good">
+    <h4>The headline finding</h4>
+    <p>enact-agent already stores <b>tool name + operation enum</b> for all 226 operations — exactly the data model lean-ctx
+    converged on. The 93 separate tool names are a presentation choice, not a structural constraint.
+    Merging sibling families takes the surface to <b>83 tools with zero operations lost</b>,
+    and lean-ctx already proved the migration path (canonical + alias + telemetry before removal).</p>
+  </div>
+</section>
+
+<section id="baseline">
+  <div class="shead"><h2>Baseline: enact-agent today</h2><span class="tag">93 built-ins · 226 operations</span></div>
+  <p class="lede">Where the current surface stands, and what the 13 disabled tools mean for the comparison.</p>
+
+  <div class="cards">
+    <div class="card">
+      <h4>Tier 1 — Core <span class="pill k">11</span></h4>
+      <div class="who">Always compiled · always in the minimal set</div>
+      <ul><li><b>shell</b> · <b>file_read</b> · <b>file_write</b> · <b>file_edit</b> · <b>glob_search</b> · <b>content_search</b></li>
+      <li><b>git_operations</b> · <b>memory_store</b> · <b>memory_recall</b> · <b>memory_forget</b> · <b>web_fetch</b></li></ul>
+    </div>
+    <div class="card">
+      <h4>Tier 2 — Host-coupled <span class="pill acc">51</span></h4>
+      <div class="who">Runtime keeps constructing them</div>
+      <ul><li><b>Scheduling</b> cron_* ×6 + schedule</li>
+      <li><b>Agent execution</b> spawn_subagent · delegate · send_message_to_peer</li>
+      <li><b>Control plane</b> model_switch · model_routing_config · proxy_config</li>
+      <li><b>Sessions</b> · <b>SOP</b> ×6 · <b>Channels</b> · <b>ACP</b> · <b>A2A</b> ×4 · <b>MCP</b> ×2</li></ul>
+    </div>
+    <div class="card">
+      <h4>Tier 3 — Optional <span class="pill d">31</span></h4>
+      <div class="who">Buildable from ToolRequest alone</div>
+      <ul><li><b>9 register on a default config</b>: calculator · weather · pushover · screenshot · image_info · browser_open · http_request · web_search_tool · backup</li>
+      <li>Rest need explicit config or an OptIn feature</li></ul>
+    </div>
+    <div class="card">
+      <h4>Disabled in the Enact build <span class="pill d">13</span></h4>
+      <div class="who">48 of 244 operations are compiled out</div>
+      <ul><li><b>OptIn SaaS</b> notion · jira · linkedin · composio · google_workspace · microsoft365</li>
+      <li><b>OptIn coding CLIs</b> claude_code · codex_cli · gemini_cli · opencode_cli · claude_code_runner</li>
+      <li><b>OptIn workflow</b> project_intel · report_template</li></ul>
+      <p style="color:var(--tx3);font-size:12.5px;margin:10px 0 0">The live config is <code>optional = ["*"]</code> — full selection —
+      but a compiled-out adapter can never be added by config. lean-ctx answers the same need with one
+      <code>ctx_provider</code> gateway instead of six bespoke tools.</p>
+    </div>
+  </div>
+</section>
+
+<section id="matrix">
+  <div class="shead"><h2>Full tool matrix</h2><span class="tag">all 109 tools</span></div>
+  <p class="lede">Every enact-agent built-in, its operations, and the verdict: <b>KEEP</b> as-is,
+  <b>ENHANCE</b> in place, <b>MERGE</b> into an action-enum family tool, <b>EXT</b>ernalise,
+  or <b>DISABLE</b> (already compiled out — leave off). Green dots mark a named counterpart in the other project.</p>
+
+  <div class="bars"><div class="bar"><div class="t">ADD</div><div class="r"><div class="f" style="width:28.8%;background:var(--c-add)"></div></div><div class="q">44</div></div><div class="bar"><div class="t">MERGE</div><div class="r"><div class="f" style="width:36.6%;background:var(--c-merge)"></div></div><div class="q">56</div></div><div class="bar"><div class="t">KEEP</div><div class="r"><div class="f" style="width:19.6%;background:var(--c-keep)"></div></div><div class="q">30</div></div><div class="bar"><div class="t">ENHANCE</div><div class="r"><div class="f" style="width:4.6%;background:var(--c-enhance)"></div></div><div class="q">7</div></div><div class="bar"><div class="t">EXT</div><div class="r"><div class="f" style="width:2.0%;background:var(--c-ext)"></div></div><div class="q">3</div></div><div class="bar"><div class="t">DISABLE</div><div class="r"><div class="f" style="width:8.5%;background:var(--c-disable)"></div></div><div class="q">13</div></div></div>
+  <p class="count" style="display:block;margin:4px 0 18px">Verdict distribution across all 153 decisions — 109 existing built-ins + 44 proposed additions.</p>
+
+  <div class="tbar">
+    <input type="search" id="q" placeholder="Search tools, operations, or notes…">
+    <select id="fv"><option value="">All verdicts</option><option>ADD</option><option>KEEP</option><option>ENHANCE</option><option>MERGE</option><option>EXT</option><option>DISABLE</option></select>
+    <select id="ft"><option value="">All tiers</option><option>Core</option><option>Host</option><option>Optional</option></select>
+    <select id="fs"><option value="">All build states</option><option value="on">Compiled in</option><option value="off">Disabled</option></select>
+    <span class="count" id="cnt"></span>
+  </div>
+
+  <div class="tbl"><div class="scroll"><table>
+    <thead><tr>
+      <th>Tool</th><th>Operations</th><th>Tier</th><th>Verdict</th>
+      <th>oh-my-pi</th><th>lean-ctx</th><th>Recommendation</th>
+    </tr></thead>
+    <tbody id="tbody"></tbody>
+  </table></div></div>
+</section>
+
+<section id="additions">
+  <div class="shead"><h2>Tools to add</h2><span class="tag">44 proposals</span></div>
+  <p class="lede">Capabilities that exist in oh-my-pi or lean-ctx and have no counterpart in enact-agent.
+  <b>P0</b> is the highest-value/lowest-effort set — four of these close a structural gap rather than adding breadth.</p>
+
+  <div class="tbar">
+    <input type="search" id="nq" placeholder="Search proposals…">
+    <select id="nfp"><option value="">All priorities</option><option>P0</option><option>P1</option><option>P2</option><option>P3</option></select>
+    <span class="count" id="ncnt"></span>
+  </div>
+
+  <div class="tbl"><div class="scroll"><table>
+    <thead><tr><th>Proposed tool</th><th>What it does</th><th>Source</th><th>Priority</th><th>Area</th><th>Why</th></tr></thead>
+    <tbody id="ntbody"></tbody>
+  </table></div></div>
+</section>
+
+<section id="hooks">
+  <div class="shead"><h2>Hook systems compared</h2><span class="tag">25 capabilities</span></div>
+  <p class="lede">The decisive difference: enact-agent's hooks are a Rust trait that only embedders can implement.
+  oh-my-pi lets a user drop a TypeScript file in a folder; lean-ctx writes JSON or TOML into other agents' homes.
+  <b>Enact-agent is the only one of the three where a user cannot add a hook at all.</b></p>
+
+  <div class="call bad">
+    <h4>Blocker — no user-scriptable hooks</h4>
+    <p><code>HooksConfig</code> exposes exactly two fields (<code>enabled</code>, <code>builtin</code>) and
+    <code>BuiltinHooksConfig</code> exactly two more (<code>command_logger</code>, <code>webhook_audit</code>).
+    The WASM plugin system has capabilities <code>Tool | Channel | Memory | Observer | Skill</code> — <b>no Hook</b>.
+    There is also no page in <code>docs/book/src/</code> describing the hook system at all.</p>
+    <p>This is the single highest-leverage gap: the trait already models 18 events with correct cancel semantics,
+    priority ordering and panic isolation. It needs an external surface, not a redesign.</p>
+  </div>
+
+  <div class="tbar">
+    <input type="search" id="hq" placeholder="Search hook capabilities…">
+    <span class="count" id="hcnt"></span>
+  </div>
+
+  <div class="tbl"><div class="scroll"><table>
+    <thead><tr><th>Capability</th><th>enact-agent</th><th>oh-my-pi</th><th>lean-ctx</th><th>Verdict</th></tr></thead>
+    <tbody id="htbody"></tbody>
+  </table></div></div>
+
+  <h3>What to adopt, concretely</h3>
+  <div class="cards">
+    <div class="card">
+      <h4>1 · Declarative hook config</h4>
+      <div class="who">enact-agent · new surface</div>
+      <ul><li>TOML or JSON: <code>[hooks.commands.pre_tool_call]</code> → command + matcher + timeout</li>
+      <li>stdin JSON payload, stdout JSON decision (<code>block</code>, <code>input</code>, <code>additionalContext</code>)</li>
+      <li>Reuse the existing <code>HookRunner</code> dispatch — no trait change</li>
+      <li>Follow lean-ctx's budget rule: fail-open on timeout, fail-closed on policy</li></ul>
+    </div>
+    <div class="card">
+      <h4>2 · Plugin hook capability</h4>
+      <div class="who">enact-agent · WASM plugins</div>
+      <ul><li>Add <code>PluginCapability::Hook</code> to the five existing capabilities</li>
+      <li>Signed manifests already exist (Ed25519) — the trust model is in place</li>
+      <li>Give plugins a stdin/stdout hook host service, like the existing http/websocket/socket services</li></ul>
+    </div>
+    <div class="card">
+      <h4>3 · Post-call output rewriting</h4>
+      <div class="who">oh-my-pi + lean-ctx</div>
+      <ul><li>enact-agent can block and rewrite <i>inputs</i>, but not rewrite <i>output</i></li>
+      <li>Add <code>on_after_tool_call</code> → result patch (content / success flag)</li>
+      <li>Unlocks dedup, compression and redaction at the tool boundary</li></ul>
+    </div>
+    <div class="card">
+      <h4>4 · Trust-boundary discipline</h4>
+      <div class="who">oh-my-pi docs/hooks.md</div>
+      <ul><li>Separate <b>trusted</b> handler-authored context from <b>untrusted</b> tool output</li>
+      <li>oh-my-pi delivers hook context with developer/system priority</li>
+      <li>enact-agent's <code>before_llm_call</code> can inject context — but the two channels are not distinguished</li></ul>
+    </div>
+  </div>
+</section>
+
+<section id="portability">
+  <div class="shead"><h2>One tool system across Codex &amp; Claude Code</h2><span class="tag">portability</span></div>
+  <p class="lede">Can one tool system be handed to both Codex and Claude Code? <b>Yes — but not through a tool
+  list.</b> Every host speaks MCP, and each has its own instruction and policy conventions. The answer is a
+  six-layer stack, and every layer has a proven reference implementation.</p>
+
+  <div class="call bad">
+    <h4>The one gap that blocks it: enact-agent cannot serve MCP</h4>
+    <p><code>crates/zeroclaw-tools/src/</code> ships <code>mcp_client.rs</code>, <code>mcp_transport.rs</code>,
+    <code>mcp_tool.rs</code>, <code>mcp_deferred.rs</code> — an MCP <b>client</b>. There is no server implementation
+    anywhere in the tree: no <code>ServerHandler</code>, no <code>list_tools</code>/<code>call_tool</code> server side,
+    no <code>rmcp</code> dependency. The protocol is hand-rolled on the client side.</p>
+    <p>This matters because <b>Codex CLI has no server mode either</b> — it is an MCP client and nothing more.
+    Claude Code can serve its own tools (<code>claude mcp serve</code>); Codex cannot. So the only way to give Codex
+    a tool set you control is to <b>be an MCP server</b>. That single missing mode is the whole difference between
+    "enact-agent is one agent among many" and "enact-agent is the tool layer for every agent you use".</p>
+  </div>
+
+  <h3>The six-layer stack</h3>
+  <div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(340px,1fr))">
+    <div class="card">
+      <h4>1 · Tools</h4>
+      <div class="who">Ship one MCP server</div>
+      <p style="color:var(--tx2);font-size:13px;margin:0 0 10px">MCP is the only substrate every host speaks. Claude Code can even serve its own tools (<code>claude mcp serve<code>); Codex cannot — so an MCP server is the only way to give Codex a tool set you control.</p>
+      <p style="color:var(--acc2);font-size:12.5px;margin:0;padding-top:10px;border-top:1px solid var(--line)">enact-agent has no server mode today. This is the single highest-leverage change for the &#x27;one system&#x27; goal.</p>
+    </div><div class="card">
+      <h4>2 · Tools, take two</h4>
+      <div class="who">Or offer a tool-injection API</div>
+      <p style="color:var(--tx2);font-size:13px;margin:0 0 10px">jcode&#x27;s Harness API exposes <code>ConfigureTools { enabled, disabled, custom }<code>: an external client registers its own tool implementations, the model calls them, and the runtime routes the call back down that client&#x27;s connection. The custom tool is an execution adapter only — it never enters the shared registry, so hooks, telemetry, output limits and permission gates behave exactly as for built-ins.</p>
+      <p style="color:var(--acc2);font-size:12.5px;margin:0;padding-top:10px;border-top:1px solid var(--line)">This is the richer alternative to MCP when you own the host: the tool implementations stay in your process, and the runtime keeps its safety model intact.</p>
+    </div><div class="card">
+      <h4>3 · Schema budget</h4>
+      <div class="who">Expose search + call, not N schemas</div>
+      <p style="color:var(--tx2);font-size:13px;margin:0 0 10px">jcode collapses MCP servers into a fixed <code>mcp<code> / <code>mcp_search<code> / <code>mcp_call<code> surface with a 32-reference cap and a 6 000-token result budget; providers with native deferred loading get <code>defer_loading<code> instead. Claude Code has MCP Tool Search; oh-my-pi uses xd:// devices + BM25.</p>
+      <p style="color:var(--acc2);font-size:12.5px;margin:0;padding-top:10px;border-top:1px solid var(--line)">enact-agent already has <code>tool_search<code> and <code>mcp_deferred<code> — extend the same idea to MCP servers.</p>
+    </div><div class="card">
+      <h4>4 · Behaviour</h4>
+      <div class="who">Per-host hook dialects</div>
+      <p style="color:var(--tx2);font-size:13px;margin:0 0 10px">lean-ctx is the reference: 17 hook actions rendered into 11 host dialects, each installer writing that host&#x27;s own config file. jcode keeps it simpler — eight external-program hooks, one command per event.</p>
+      <p style="color:var(--acc2);font-size:12.5px;margin:0;padding-top:10px;border-top:1px solid var(--line)">Ship Claude Code <code>settings.json<code> and Codex <code>.codex/hooks.json<code> installers. Do not invent a new hook format.</p>
+    </div><div class="card">
+      <h4>5 · Instructions</h4>
+      <div class="who">AGENTS.md + SKILL.md</div>
+      <p style="color:var(--tx2);font-size:13px;margin:0 0 10px">Codex reads AGENTS.md natively. Claude Code reads AGENTS.md only when no CLAUDE.md exists (v2.1.277+), or you put an <code>@path<code> import on line 1 of CLAUDE.md, or set project instructions to claude-md-and-agents-md.</p>
+      <p style="color:var(--acc2);font-size:12.5px;margin:0;padding-top:10px;border-top:1px solid var(--line)">One AGENTS.md, one SKILL.md, imported by both. AGENTS.md is capped at 32 KiB by default. jcode, goose and oh-my-pi all already read these paths.</p>
+    </div><div class="card">
+      <h4>6 · Policy</h4>
+      <div class="who">Degrade to each host&#x27;s own rules</div>
+      <p style="color:var(--tx2);font-size:13px;margin:0 0 10px">Codex uses <code>.rules<code> files (allow / prompt / forbidden). Claude Code uses permissions in settings.json. They are not the same model and should not be unified.</p>
+      <p style="color:var(--acc2);font-size:12.5px;margin:0;padding-top:10px;border-top:1px solid var(--line)">A shared tool must respect the host&#x27;s policy rather than assume it. enact-agent&#x27;s availability-vs-authorization split maps cleanly onto this.</p>
+    </div>
+  </div>
+
+  <h3>Who does what, today</h3>
+  <p class="lede">Nine systems, compared on the axes that decide whether a tool set can cross host boundaries.
+  <b>GAP</b> means the capability is missing; <b>REFERENCE</b> means it is the model others copy.</p>
+
+  <div class="tbar">
+    <input type="search" id="pq" placeholder="Search systems…">
+    <span class="count" id="pcnt"></span>
+  </div>
+
+  <div class="tbl"><div class="scroll"><table>
+    <thead><tr>
+      <th>System</th><th>MCP client</th><th>MCP server</th><th>Hook surface</th>
+      <th>Instructions</th><th>Claude Code</th><th>Codex</th><th>Verdict</th><th>Note</th>
+    </tr></thead>
+    <tbody id="ptbody"></tbody>
+  </table></div></div>
+
+  <div class="call good">
+    <h4>The pattern everyone converged on</h4>
+    <p>Read the MCP column again: <b>every serious system is an MCP client</b>, and the ones that are also
+    <i>layers</i> rather than agents — lean-ctx, Serena — are MCP servers. jcode, goose and oh-my-pi go further and
+    deliberately <b>read the host's own config</b>: jcode reads Claude Code's live <code>~/.claude.json</code> and
+    one-time-imports Codex's <code>~/.codex/config.toml</code>; goose imports Claude Desktop's MCP config on first run
+    and reads <code>~/.claude/agents</code> and <code>~/.claude/skills</code>. The convention is portable even when
+    the product is not.</p>
+  </div>
+</section>
+
+<section id="jcode">
+  <div class="shead"><h2>jcode</h2><span class="tag">1jehuang/jcode · Rust · MIT · ~21k★</span></div>
+  <p class="lede">The Rust harness you named. A single native binary built for running <i>dozens</i> of agents in
+  parallel: ~19 ms time-to-first-input, megabytes per extra session, and a server-coordinated swarm that resolves
+  the "agent B read a file agent A just edited" conflict for you.</p>
+
+  <div class="call good">
+    <h4>★ The finding that answers "pass one tool system to them"</h4>
+    <p>jcode's Harness API does more than drive a UI — it lets an <b>external client inject a whole tool set</b>.
+    <code>ApiRequest::ConfigureTools { session_id, tools: ToolConfiguration }</code> carries
+    <code>enabled</code>, <code>disabled</code> and <code>custom: Vec&lt;SessionToolDefinition&gt;</code>. A custom
+    tool may even override a built-in of the same name. When the model calls it, the runtime emits a
+    <code>ToolCall</code> event down <i>that client's own connection</i> and blocks; the client answers with a
+    <code>ToolResult</code> (120 s deadline).</p>
+    <p>And it keeps the safety model intact: a custom tool is an <i>execution adapter only, never installed in the
+    shared registry</i> — so hooks, telemetry, output limits and permission gates behave exactly as they do for
+    built-ins. That is a complete, versioned contract for being the tool layer for a runtime you do not own.</p>
+  </div>
+
+  <div class="cards">
+    <div class="card hi">
+      <h4>Harness API <span class="pill x">tool injection</span></h4>
+      <div class="who">crates/jcode-harness-api · API_VERSION_MAJOR 1 / MINOR 11 · Unix socket, NDJSON</div>
+      <ul>
+        <li><b>A stable, versioned boundary between the harness and ANY UI</b> — TUI, desktop, web, scripts. Deliberately smaller than the internal <code>jcode-protocol</code>; only curated surface is public.</li>
+        <li><b>NDJSON, one JSON object per line.</b> Every frame carries <code>v</code> (protocol major). Clients must ignore unknown fields and skip unknown event kinds.</li>
+        <li><b>Additive changes bump the minor version; breaking changes bump major and must be negotiated in the handshake.</b></li>
+        <li><b>The tool surface is reconfigurable at runtime</b> — enable, disable and add custom tools per session, with session-scoped ownership so a stale client cannot remove a successor's policy.</li>
+        <li>There is also a TypeScript SDK (<code>@1jehuang/jcode-sdk</code>) with schema parity tests against the Rust side.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>MCP config interop</h4>
+      <div class="who">crates/jcode-base/src/mcp/protocol.rs</div>
+      <ul>
+        <li><b>Project precedence:</b> <code>.jcode/mcp.json</code> → <code>.mcp.json</code> (Claude Code) → <code>.claude/mcp.json</code>. Later files override same-named servers.</li>
+        <li><b>Claude Code stays a live source</b> — <code>~/.claude.json</code> is read, never copied.</li>
+        <li><b>Codex is a one-time migration:</b> imported from <code>~/.codex/config.toml</code> <code>[mcp_servers.*]</code>, and only while <code>~/.jcode/mcp.json</code> does not exist.</li>
+        <li><b>Runnable wins:</b> an existing working stdio server is kept over a lower-precedence definition, with a log line. A broken higher-precedence entry does not shadow a working one.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Schema budget &amp; cache safety</h4>
+      <div class="who">crates/jcode-app-core/src/tool/mcp.rs · agent.rs</div>
+      <ul>
+        <li><b>Three layers of mitigation.</b> Providers with native deferred loading get <code>defer_loading</code> + <code>cache_control</code>; the rest get a fixed <code>mcp</code> / <code>mcp_search</code> / <code>mcp_call</code> surface (<code>mcp_search</code> and <code>mcp_call</code> are compatibility aliases, not model-visible); and tools that arrive late are announced in the transcript instead of the cached prefix.</li>
+        <li><b><code>mcp_search</code> budgets</b> — at most <b>32</b> tool references, under a <b>6 000-token</b> result budget; a broad query trims descriptions first, then drops schemas for lower-ranked matches. Description-only matches are dropped once any name matches.</li>
+        <li><b>The tool list is locked after the first request</b> so the provider prompt cache is not invalidated. MCP servers connect in the background; exactly <b>one</b> deliberate rebuild is allowed to pick them up — an intentional one-time cache miss, latched by a guard that is deliberately not re-armed.</li>
+        <li><b>Advertise-early</b>: proxy tools are registered from the on-disk schema cache before connections settle, so the first locked snapshot already contains MCP tools and the cache miss can be avoided entirely.</li>
+        <li><b>AGENTS.md and the skills prompt section are snapshotted</b> at session start, so tool writes cannot mutate the provider's cacheable prefix mid-session.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Swarm &amp; self-development</h4>
+      <div class="who">crates/jcode-swarm-core · tool/communicate.rs</div>
+      <ul>
+        <li><b>The swarm tool is <code>communicate</code></b>, exposed as <code>swarm</code>. It spawns and coordinates child agents, DMs one agent, broadcasts to all, or broadcasts to one repo.</li>
+        <li><b>File-change notices.</b> When agent A edits a file agent B has read, B is notified and can inspect the diff before it conflicts.</li>
+        <li><b>Agents can spawn their own swarms</b> — the main agent becomes a coordinator, spawned agents become workers.</li>
+        <li><b>Self-dev mode:</b> an agent edits, builds, tests and reloads jcode's own binary mid-session.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>jcode's external-program hooks</h3>
+  <p class="lede">jcode keeps its hook system deliberately small: eight events, each a command string or an array of
+  commands, executed directly rather than through a shell. Observers run in declaration order; gates run
+  sequentially and the first block wins. Notably, <code>post_tool_feedback</code> feeds its stdout back into the
+  tool result — that is how linters and checkers report findings straight to the model.</p>
+
+  <div class="tbl"><div class="scroll"><table>
+    <thead><tr><th style="width:220px">Hook</th><th style="width:260px">Trigger</th><th>Capability</th></tr></thead>
+    <tbody id="jhbody"></tbody>
+  </table></div></div>
+
+  <h3>jcode facts</h3>
+  <div class="tbl"><div class="scroll"><table>
+    <thead><tr><th style="width:210px">Aspect</th><th>Detail</th></tr></thead>
+    <tbody><tr><td style="white-space:nowrap;vertical-align:top"><div class="tname" style="font-size:12px">Language / licence</div></td>
+        <td><div class="note" style="max-width:720px">Rust (91.6% of the repo) · MIT · ~21k stars · single native binary, no Node or Python runtime</div></td></tr><tr><td style="white-space:nowrap;vertical-align:top"><div class="tname" style="font-size:12px">Registered tools</div></td>
+        <td><div class="note" style="max-width:720px">34 built-ins (27 base + 4 per-session + the `mcp` family + 2 desktop-only), plus dynamically registered `mcp__&lt;server&gt;__&lt;tool&gt;` proxies</div></td></tr><tr><td style="white-space:nowrap;vertical-align:top"><div class="tname" style="font-size:12px">Not registered</div></td>
+        <td><div class="note" style="max-width:720px">`ls`, `glob`, `grep`, `subagent`, `goal`, `plan`, `rewind`, `checkpoint` are NOT model-callable tools. `ls` and `grep` survive only as alias names; the `acp` and `minimal` tool profiles still list `ls`, which is a dangling reference. Rewind is a Harness API request, not a tool.</div></td></tr><tr><td style="white-space:nowrap;vertical-align:top"><div class="tname" style="font-size:12px">Harness API</div></td>
+        <td><div class="note" style="max-width:720px">Stable, versioned client API over a Unix socket, spoken as NDJSON. `API_VERSION_MAJOR` 1 / `API_VERSION_MINOR` 11. Every frame carries `v`; clients must ignore unknown fields and skip unknown event kinds. Explicitly the public boundary between the harness and any UI (TUI, desktop, web, scripts), and deliberately smaller than the internal `jcode-protocol`.</div></td></tr><tr><td style="white-space:nowrap;vertical-align:top"><div class="tname" style="font-size:12px">★ External tool injection</div></td>
+        <td><div class="note" style="max-width:720px">`ApiRequest::ConfigureTools { session_id, tools: ToolConfiguration }` carries `enabled`, `disabled` and `custom: Vec&lt;SessionToolDefinition&gt;`. A custom tool may override a built-in of the same name. The model calls it, the server emits a `ToolCall` event down the client&#x27;s own connection, the client replies with `ToolResult` (120 s deadline). This is a complete, versioned contract for handing a tool set to a runtime from outside it.</div></td></tr><tr><td style="white-space:nowrap;vertical-align:top"><div class="tname" style="font-size:12px">★ Injected tools keep builtin semantics</div></td>
+        <td><div class="note" style="max-width:720px">A custom tool is an &quot;execution adapter only, never installed in the shared registry&quot; — so hooks, telemetry, output limits and permission gates behave exactly as they do for built-ins.</div></td></tr><tr><td style="white-space:nowrap;vertical-align:top"><div class="tname" style="font-size:12px">External-program hooks</div></td>
+        <td><div class="note" style="max-width:720px">Eight hook keys in `docs/HOOKS.md` — `pre_tool`, `pre_tool_transform`, `post_tool`, `post_tool_feedback`, `turn_start`, `turn_end`, `session_start`, `session_end`. Each is a command string or array; observers run in order, gates run sequentially and the first block wins. `post_tool_feedback` appends its stdout to the tool result, which is how linters and checkers feed findings back to the model.</div></td></tr><tr><td style="white-space:nowrap;vertical-align:top"><div class="tname" style="font-size:12px">MCP config interop</div></td>
+        <td><div class="note" style="max-width:720px">Project precedence: `.jcode/mcp.json` → `.mcp.json` (Claude Code) → `.claude/mcp.json`. Claude Code is a LIVE source (`~/.claude.json` and `~/.claude/mcp.json`) and is never copied. Codex is a one-time import from `~/.codex/config.toml` `[mcp_servers.*]`, and only while `~/.jcode/mcp.json` does not exist — the stated reason is that persisting a live source would resurrect deleted servers and duplicate inline secrets.</div></td></tr><tr><td style="white-space:nowrap;vertical-align:top"><div class="tname" style="font-size:12px">Server preference</div></td>
+        <td><div class="note" style="max-width:720px">Runnable wins. A remote twin of a working local stdio server does not overwrite it, because a remote twin usually needs a separate login. A broken higher-precedence entry does not shadow a working one.</div></td></tr><tr><td style="white-space:nowrap;vertical-align:top"><div class="tname" style="font-size:12px">Schema bloat control</div></td>
+        <td><div class="note" style="max-width:720px">Three layers: provider-native deferred loading (`defer_loading` + `cache_control`) where supported; a fixed `mcp` / `mcp_search` / `mcp_call` surface elsewhere; and transcript announcement for tools that arrive late. `mcp_search` caps at 32 tool references under a 6 000-token budget, drops description-only matches once a name matches, and trims descriptions before dropping schemas.</div></td></tr><tr><td style="white-space:nowrap;vertical-align:top"><div class="tname" style="font-size:12px">Prompt-cache safety</div></td>
+        <td><div class="note" style="max-width:720px">The tool list is locked after the first request. Exactly ONE deliberate rebuild is permitted, latched by a one-shot guard that is deliberately NOT re-armed. Definitions are sorted by name because ordering is a cache requirement. An AGENTS.md snapshot keeps the cacheable prefix stable when a tool edits it mid-session.</div></td></tr><tr><td style="white-space:nowrap;vertical-align:top"><div class="tname" style="font-size:12px">Advertise-early</div></td>
+        <td><div class="note" style="max-width:720px">Proxy tools are registered from the on-disk schema cache before connections settle, so the first locked snapshot already contains MCP tools and the intentional cache miss can be avoided entirely.</div></td></tr><tr><td style="white-space:nowrap;vertical-align:top"><div class="tname" style="font-size:12px">Tool profiles</div></td>
+        <td><div class="note" style="max-width:720px">`full` (default) | `acp` | `minimal` | `none`, plus explicit allow/deny lists, `disable_base_tools` and `mcp_tools = auto|eager|deferred`. Deny beats allow; `disabled: [&quot;mcp&quot;]` disables every MCP tool at once.</div></td></tr><tr><td style="white-space:nowrap;vertical-align:top"><div class="tname" style="font-size:12px">Canonical alias table</div></td>
+        <td><div class="note" style="max-width:720px">`resolve_tool_name()` maps every host&#x27;s vocabulary onto one internal name — `Bash`, `file_grep`, `shell_exec`, `functions.bash`, `todoread`, `multiedit`, `patch`, `communicate` — with a matching provider-side reverse map.</div></td></tr><tr><td style="white-space:nowrap;vertical-align:top"><div class="tname" style="font-size:12px">Swarm</div></td>
+        <td><div class="note" style="max-width:720px">One tool (`communicate`, exposed as `swarm`). The server coordinates agents in the same repo: a `FileTouch` bus event detects contention and emits a `FileConflict` notification plus a soft interrupt to BOTH parties. Detection and notification only — no automatic merge; cross-agent write serialization is a process-local mutex.</div></td></tr><tr><td style="white-space:nowrap;vertical-align:top"><div class="tname" style="font-size:12px">Memory graph</div></td>
+        <td><div class="note" style="max-width:720px">A typed graph, not a key-value store: weighted edges, tag and cluster nodes, and `supersede` edges. Recall is link-traversal-capable (`related`, `link`, `tag`), so a memory can be found through its relationships and not only by similarity.</div></td></tr><tr><td style="white-space:nowrap;vertical-align:top"><div class="tname" style="font-size:12px">Providers</div></td>
+        <td><div class="note" style="max-width:720px">Anthropic (OAuth), OpenAI / Codex OAuth, Gemini, Copilot, OpenRouter, Antigravity, Bedrock, Cursor, Grok Build, plus a large OpenAI-compatible catalog. Anthropic OAuth beta headers deliberately do NOT claim `claude-code`.</div></td></tr><tr><td style="white-space:nowrap;vertical-align:top"><div class="tname" style="font-size:12px">Skills &amp; extensions</div></td>
+        <td><div class="note" style="max-width:720px">Skills are Markdown + YAML frontmatter with `allowed-tools`, discovered from `.jcode/skills`, `.claude/skills` and `.agents/skills`, invoked as `/name`, overlaid per session at read time. Applets mount declarative native UI. Codemode is a QuickJS sandbox that can call any session tool.</div></td></tr></tbody>
+  </table></div></div>
+
+  <h3>jcode's 35 built-in tools</h3>
+  <div class="tbar">
+    <input type="search" id="jq" placeholder="Search jcode tools…">
+    <span class="count" id="jcnt"></span>
+  </div>
+  <div class="tbl"><div class="scroll"><table>
+    <thead><tr><th style="width:220px">Tool</th><th>Purpose</th></tr></thead>
+    <tbody id="jtbody"></tbody>
+  </table></div></div>
+
+  <div class="call">
+    <h4>What jcode is actually evidence for</h4>
+    <p>jcode is <b>not</b> a competitor to enact-agent's tool surface — it is a second Rust agent runtime that
+    happens to solve the same context-budget problem three more times over. Its value here is threefold:
+    it proves the <b>search + call</b> pattern for MCP schemas works in production, it shows the
+    <b>config-interop precedence chain</b> that lets one agent read another agent's MCP servers, and its
+    <b>Harness API</b> is a clean model for the kind of stable, versioned, host-agnostic boundary enact-agent's
+    ACP gateway is reaching for.</p>
+    <p>The most transferable single idea: <b>read the hosts' configs instead of asking users to re-declare
+    everything.</b> Claude Code's <code>~/.claude.json</code>, Codex's <code>~/.codex/config.toml</code>,
+    <code>AGENTS.md</code>, <code>SKILL.md</code> — those are the portable surfaces, and three of the four systems
+    surveyed already read them.</p>
+  </div>
+</section>
+
+<section id="consolidate">
+  <div class="shead"><h2>Consolidation plan</h2><span class="tag">93 → 83 tools</span></div>
+  <p class="lede">Sibling families that share a prefix and are always used together collapse into one tool with a typed
+  action enum. <b>All 244 operations survive</b> — only the tool names change.
+  This is exactly the migration lean-ctx ran between 3.11.4 and 3.11.5: canonical tool + typed actions + legacy aliases
+  + telemetry before removal.</p>
+
+  <div class="call">
+    <h4>Why this matters beyond tidiness</h4>
+    <p>lean-ctx states the case directly: <i>"Agents currently receive too many overlapping MCP tool definitions.
+    Large tool lists consume context, duplicate concepts across schemas, and make tool choice less reliable."</i>
+    oh-my-pi solves the same problem from the other end — 13 <code>essential</code> tools in the schema,
+    everything else behind <code>xd://</code> devices and BM25 discovery. enact-agent has
+    <code>deferred_builtin_tools</code> and <code>tool_search</code> already, but the default catalog is still flat and large.</p>
+  </div>
+
+  <div class="tbl" style="padding:6px 18px">
+    <div class="mrow"><div class="fam">cron</div>
+        <div class="from"><b>cron_add</b> · <b>cron_list</b> · <b>cron_remove</b> · <b>cron_update</b> · <b>cron_run</b> · <b>cron_runs</b> · <b>schedule</b></div>
+        <div class="to">7 → 1</div></div><div class="mrow"><div class="fam">sop</div>
+        <div class="from"><b>sop_list</b> · <b>sop_execute</b> · <b>sop_advance</b> · <b>sop_approve</b> · <b>sop_status</b> · <b>sop_workshop</b></div>
+        <div class="to">6 → 1</div></div><div class="mrow"><div class="fam">memory</div>
+        <div class="from"><b>memory_store</b> · <b>memory_recall</b> · <b>memory_forget</b> · <b>memory_export</b> · <b>memory_purge</b></div>
+        <div class="to">5 → 1</div></div><div class="mrow"><div class="fam">a2a</div>
+        <div class="from"><b>a2a_discover</b> · <b>a2a_send</b> · <b>a2a_get_task</b> · <b>a2a_cancel</b></div>
+        <div class="to">4 → 1</div></div><div class="mrow"><div class="fam">sessions</div>
+        <div class="from"><b>sessions_current</b> · <b>sessions_list</b> · <b>sessions_history</b> · <b>sessions_send</b></div>
+        <div class="to">4 → 1</div></div><div class="mrow"><div class="fam">model</div>
+        <div class="from"><b>model_switch</b> · <b>model_routing_config</b></div>
+        <div class="to">2 → 1</div></div><div class="mrow"><div class="fam">mcp</div>
+        <div class="from"><b>mcp_resources</b> · <b>mcp_prompts</b></div>
+        <div class="to">2 → 1</div></div><div class="mrow"><div class="fam">cloud</div>
+        <div class="from"><b>cloud_ops</b> · <b>cloud_patterns</b></div>
+        <div class="to">2 → 1</div></div><div class="mrow"><div class="fam">file_uploads</div>
+        <div class="from"><b>file_upload</b> · <b>file_upload_bundle</b></div>
+        <div class="to">2 → 1</div></div><div class="mrow"><div class="fam">email</div>
+        <div class="from"><b>email_search</b> · <b>email_read</b></div>
+        <div class="to">2 → 1</div></div>
+  </div>
+
+  <h3>Sequencing, following lean-ctx's playbook</h3>
+  <div class="cards">
+    <div class="card"><h4>Step 1</h4><div class="who">no behaviour change</div>
+      <ul><li>Introduce the canonical family tool with a typed <code>action</code> enum</li>
+      <li>Keep every old name registered as a <b>thin alias</b> that validates, translates, and delegates</li>
+      <li>Emit a one-time deprecation notice <b>outside</b> the tool result body</li></ul></div>
+    <div class="card"><h4>Step 2</h4><div class="who">default catalog</div>
+      <ul><li>Make the merged surface the default in <code>all_tools</code></li>
+      <li>Keep a compatibility profile that advertises the legacy aliases</li>
+      <li>Derive counts from the registry, never by hand</li></ul></div>
+    <div class="card"><h4>Step 3</h4><div class="who">proof</div>
+      <ul><li>Table-driven test: every legacy name routes to exactly one canonical action</li>
+      <li>Assert alias and canonical results are byte-identical</li>
+      <li>Assert the default profile advertises the new count</li></ul></div>
+    <div class="card"><h4>Step 4</h4><div class="who">later</div>
+      <ul><li>Remove aliases only in a major version</li>
+      <li>Only after telemetry shows no alias use for two release cycles</li>
+      <li>Publish the removal date and replacement route in release notes first</li></ul></div>
+  </div>
+
+  <div class="call good">
+    <h4>Bonus: one gateway instead of six SaaS tools</h4>
+    <p>The 13 disabled OptIn adapters are all the same shape — a vendor API behind an auth model.
+    lean-ctx replaces all of them with one <code>ctx_provider</code> gateway (GitHub, GitLab, Jira, Postgres, MCP bridges, custom REST).
+    If enact-agent wants those integrations back later, that is one tool to build, not six.</p>
+  </div>
+</section>
+
+<section id="roadmap">
+  <div class="shead"><h2>Recommended roadmap</h2><span class="tag">four phases</span></div>
+  <p class="lede">Ordered by leverage, not by difficulty. Phase 1 closes the structural gaps; Phase 4 is optional polish.</p>
+
+  <div class="rm">
+    <div class="phase">
+      <h4>Phase 0 · Become a tool layer <span class="pill" style="color:var(--bad);border-color:var(--bad)55">unlocks everything else</span></h4>
+      <div class="meta">the only change that makes one tool set usable from Codex AND Claude Code</div>
+      <div class="status"><b>Shipped.</b> A native MCP server (stdio and HTTP) serves the registry through <code>mcp_search</code>/<code>mcp_call</code>; it reads <code>~/.codex/config.toml</code>, <code>~/.claude.json</code> and the project <code>.mcp.json</code> with runnable-server precedence, and the bridge ships one AGENTS.md block, one CLAUDE.md, one settings file and one SKILL.md for both hosts.</div>
+      <ul>
+        <li><b>Add an MCP server mode</b> — <code>zeroclaw-mcp serve</code> exposing the tool registry over stdio (and HTTP). Today enact-agent is an MCP <i>client</i> only; Codex has no server mode either, so this is the only way to hand Codex a tool set you control.</li>
+        <li><b>Adopt the search + call pattern</b> — expose <code>mcp_search</code> / <code>mcp_call</code> instead of advertising every MCP schema. jcode caps it at 32 references under a 6 000-token budget; enact-agent already has <code>tool_search</code> and <code>mcp_deferred</code> to build on.</li>
+        <li><b>Read the hosts' MCP config</b> — <code>.mcp.json</code>, <code>~/.claude.json</code>, and a one-time import from <code>~/.codex/config.toml</code>, using jcode's precedence rules (runnable server wins over a lower-precedence broken one).</li>
+        <li><b>Ship AGENTS.md + SKILL.md</b> so the same instructions load in both hosts, and honour each host's own policy surface (Codex <code>.rules</code>, Claude Code permissions) rather than assuming one model.</li>
+      </ul>
+    </div>
+
+    <div class="phase">
+      <h4>Phase 1 · Close the structural gaps <span class="pill" style="color:var(--bad);border-color:var(--bad)55">highest leverage</span></h4>
+      <div class="meta">the one gap a user actually hits: they cannot add a hook</div>
+      <div class="status"><b>Shipped.</b> Declarative hook config (six events, stdin JSON in, JSON decision out, per-hook timeout and fail-open), a hooks documentation page, post-call output rewriting that runs before the result is logged, and a trusted/untrusted split on the injection path are in. A WASM plugin can now serve as a hook too: the <code>hook-plugin</code> world, the <code>PluginCapability::Hook</code> capability, and the adapter that binds it to the same hook runner the command hooks use.</div>
+      <ul>
+        <li><b>Declarative hook config</b> — TOML/JSON mapping events to commands, stdin JSON in, JSON decision out. Reuse the existing <code>HookRunner</code> and its cancel/priority/panic semantics.</li>
+        <li><b>Add <code>PluginCapability::Hook</code></b> so WASM plugins can register hooks with the existing Ed25519 trust model.</li>
+        <li><b>Document the hook system</b> — it currently has no page in <code>docs/book/src/</code>.</li>
+        <li><b>Add post-call output rewriting</b> to <code>on_after_tool_call</code> — unlocks dedup, compression and redaction at the tool boundary.</li>
+        <li><b>Split trusted vs untrusted context</b> on the <code>before_llm_call</code> injection path.</li>
+      </ul>
+    </div>
+
+    <div class="phase">
+      <h4>Phase 2 · Context and code intelligence <span class="pill" style="color:var(--warn);border-color:var(--warn)55">the missing half</span></h4>
+      <div class="meta">enact-agent can act on a machine but cannot reason about its context or its code</div>
+      <div class="status"><b>Shipped.</b> <code>compose</code>, <code>expand</code>, <code>ast_grep</code>, <code>ast_edit</code>, <code>callgraph</code>, <code>graph</code> and <code>radar</code> are registered, and <code>file_read</code> grew the five read modes. Oversized tool output is archived, and <code>expand</code> retrieves it.</div>
+      <ul>
+        <li><b>compose</b> — one-call context assembly (ranked files + inline source). Replaces search→read→read chains; the single highest-value addition.</li>
+        <li><b>expand</b> — retrieve archived output, so any future compression stays lossless.</li>
+        <li><b>Read modes on file_read</b> — signatures, outline, diff, anchored, task. Orientation stops costing whole files.</li>
+        <li><b>ast_grep + ast_edit</b> — structural code queries and previewed structural rewrites. Nothing in enact-agent matches this.</li>
+        <li><b>callgraph + graph</b> — blast-radius analysis that content search cannot provide.</li>
+        <li><b>radar</b> — context budget attribution. enact-agent tracks cost but not context spend.</li>
+      </ul>
+    </div>
+
+    <div class="phase">
+      <h4>Phase 3 · Surface consolidation <span class="pill m">93 → 83</span></h4>
+      <div class="meta">following lean-ctx's shipped 3.11.5 migration</div>
+      <div class="status"><b>Shipped.</b> 109 source tools become <b>83 canonical tools</b> — the 36 siblings collapse into 10 families whose action enums are the operations themselves, so nothing is lost. Legacy names keep working and carry a one-time notice beside the result body. The native and bridge surfaces publish the same action names, and the count is derived from the registry.</div>
+      <ul>
+        <li>Merge the 36 sibling tools into <b>10 family tools</b> with typed action enums, absorbing 66 operations with none lost.</li>
+        <li>Canonical tool + legacy aliases + one-time deprecation notice outside the result body.</li>
+        <li>Derive the advertised count from the registry; assert it in a test rather than by hand.</li>
+        <li>Then lean on <code>deferred_builtin_tools</code> and <code>tool_search</code> for a bounded default schema.</li>
+      </ul>
+    </div>
+
+    <div class="phase">
+      <h4>Phase 4 · Coordination and modes <span class="pill">optional</span></h4>
+      <div class="meta">copy where a competitor is clearly ahead; leave enact-agent's own strengths alone</div>
+      <div class="status"><b>Shipped.</b> <code>wait</code> blocks on the durable task registry with a bounded timeout; <code>learn</code> records a lesson and can fold it into a named skill, and the skill tools are registered; approval tiers classify every tool read, write or exec and an operator may name a tier in <code>auto_approve</code> or <code>always_ask</code>; <code>checkpoint</code> and <code>rewind</code> mark and return to a point in the conversation; <code>plan_mode</code> puts the turn in plan mode, where only the read-tier tools run, and <code>plan_execute</code> asks the operator to let it act again. The three that need the conversation's history share one channel: the turn loop owns it, and the tools borrow it.</div>
+      <ul>
+        <li><b>wait</b> — await async results instead of polling (both competitors forbid polling).</li>
+        <li><b>learn + manage_skill</b> — close the loop from a correction to a durable skill. enact-agent implements <code>skill_manage</code> but deliberately does not register it.</li>
+        <li><b>checkpoint + rewind</b> — auto-include the pair; a one-sided tool strands the agent.</li>
+        <li><b>Plan mode</b> — enact-agent has no plan/ask/research mode at all.</li>
+        <li><b>Approval tiers</b> — read/write/exec, as a refinement of the existing risk profile and sandbox system.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>What to leave alone</h3>
+  <div class="call good">
+    <p>enact-agent's <b>three-axis tier model</b>, <b>tool receipts</b>, <b>sandbox backends</b>, <b>approval gates</b>,
+    <b>SOP engine</b>, <b>channel breadth</b>, <b>A2A client</b> and <b>per-agent MCP scoping</b> have no counterpart in
+    either competitor and are stronger than what oh-my-pi or lean-ctx offer. The recommendation is
+    <b>add and enhance</b>, never <b>replace</b>. In particular, keep the availability-vs-authorization split
+    (<code>/// Availability only: callers must still enforce policy and prerequisites.</code>) —
+    it is the cleanest expression of the safety model in any of the three projects.</p>
+  </div>
+</section>
+
+<section id="method">
+  <div class="shead"><h2>Method &amp; sources</h2><span class="tag">evidence</span></div>
+  <div class="cards">
+    <div class="card">
+      <h4>Sources inspected</h4>
+      <ul>
+        <li><b>enact-agent</b> — <code>crates/zeroclaw-api/src/hook.rs</code>, <code>crates/zeroclaw-runtime/src/hooks/</code>, <code>crates/zeroclaw-config/src/builtin_tools.rs</code>, <code>crates/zeroclaw-config/src/schema.rs</code>, <code>crates/zeroclaw-tools/src/inventory.rs</code>, <code>docs/book/src/developing/tool-inventory.md</code>, <code>overlays/enact/</code></li>
+        <li><b>oh-my-pi</b> — <code>packages/coding-agent/src/tools/builtin-names.ts</code>, <code>packages/coding-agent/src/tools/index.ts</code>, <code>packages/coding-agent/src/tools/essential-tools.ts</code>, <code>packages/coding-agent/src/extensibility/hooks/</code>, <code>packages/coding-agent/src/extensibility/extensions/</code>, <code>docs/hooks.md</code>, <code>README.md</code></li>
+        <li><b>lean-ctx</b> — <code>rust/crates/lean-ctx-server/src/tools/registered/</code>, <code>rust/src/tool_defs/mod.rs</code>, <code>rust/crates/lean-ctx-hooks/src/</code>, <code>docs/tool-consolidation-plan.md</code>, <code>docs/PROTECTED-HOOKS.md</code>, <code>CONTRACTS.md</code></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>How the numbers were derived</h4>
+      <ul>
+        <li><b>93 tools / 226 operations</b> — from <code>zeroclaw-tools-operations.csv</code> (unique <code>tool_name</code> × <code>operation</code>).</li>
+        <li><b>13 disabled tools / 48 operations</b> — from the overlay copy at <code>overlays/enact/zeroclaw-tools-operations.csv</code>, which carries the real <code>compiled_in_enact</code> flags. The workspace copy of the CSV has that column rewritten to <code>TRUE</code> everywhere, which is why the disabled set is invisible there.</li>
+        <li><b>Verdicts</b> — authored per tool from the three codebases; the merge set is derived mechanically from the CSV's <code>tool_name</code> families.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Caveats</h4>
+      <ul>
+        <li>All findings are from <b>static source reads</b>; no crate was built or run.</li>
+        <li>lean-ctx's tool counts are release-sensitive — its own catalog says not to repeat changing counts. Figures here are for the checked-out commit.</li>
+        <li>oh-my-pi's <code>README.md</code> claims "31 built-in tools" while the registry lists 30 — an unreconciled drift in their repo.</li>
+        <li>enact-agent's tier table is explicitly a <b>proposal</b> against a composition contract that is not yet in code, though the compiled inventory it backs is enforced by tests.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>Generated from local clones of <a href="https://github.com/can1357/oh-my-pi">can1357/oh-my-pi</a> and
+  <a href="https://github.com/yvgude/lean-ctx">yvgude/lean-ctx</a>, read against the
+  <code>enact-agent</code> working tree and <code>zeroclaw-tools-operations.csv</code>.
+  Research clones live under <code>research/</code>.</p>
+</footer>
+
+</div>
+<script>
+const S={"total_tools": 109, "total_ops": 244, "enabled_tools": 96, "disabled_tools": 13, "enabled_ops": 196, "disabled_ops": 48, "merged_tool_count": 36, "ops_absorbed": 66, "post_merge_tools": 83, "verdict_counts": {"KEEP": 30, "ENHANCE": 7, "MERGE": 56, "DISABLE": 13, "EXT": 3, "ADD": 44}, "omp_tools": 30, "omp_hidden": 3, "omp_essential": 13, "lcx_public": 51, "lcx_core": 12, "lcx_consolidated": 35, "lcx_registry": 82}, V={"shell": ["KEEP", "bash", "ctx_shell", "Local-first execution boundary; already under shell policy + sandbox + receipts."], "file_read": ["ENHANCE", "read", "ctx_read", "Add read modes (signatures/outline/diff/anchored) so orientation does not cost whole files."], "file_write": ["KEEP", "write", "ctx_write", "Fine as-is."], "file_edit": ["ENHANCE", "edit", "ctx_patch", "Move to hash-anchored edits with stale-anchor conflict detection."], "glob_search": ["KEEP", "glob", "ctx_files", "Fine as-is."], "content_search": ["ENHANCE", "grep", "ctx_search", "Add semantic + symbol search modes; keep regex default."], "git_operations": ["MERGE", "-", "ctx_git_read", "13 actions already enum-backed; keep as one tool with action enum."], "memory_store": ["MERGE", "retain", "ctx_knowledge", "Merge memory_* family into one action-enum tool."], "memory_recall": ["MERGE", "recall", "ctx_knowledge", "Merge into `memory` action=recall."], "memory_forget": ["MERGE", "memory_edit", "ctx_memory", "Merge into `memory` action=forget."], "web_fetch": ["ENHANCE", "-", "ctx_url_read", "Add compression + SSRF guard parity with ctx_url_read."], "cron_add": ["MERGE", "-", "ctx_session", "Merge cron_* + schedule into one `cron` tool with action enum."], "cron_list": ["MERGE", "-", "ctx_session", "Merge into `cron` action=list."], "cron_remove": ["MERGE", "-", "-", "Merge into `cron` action=remove."], "cron_update": ["MERGE", "-", "-", "Merge into `cron` action=update."], "cron_run": ["MERGE", "-", "-", "Merge into `cron` action=run."], "cron_runs": ["MERGE", "-", "-", "Merge into `cron` action=runs."], "schedule": ["MERGE", "-", "ctx_session", "Merge into `cron` action=once/recurring."], "memory_export": ["MERGE", "-", "ctx_knowledge", "Merge into `memory` action=export."], "memory_purge": ["MERGE", "-", "-", "Merge into `memory` action=purge."], "spawn_subagent": ["KEEP", "task", "ctx_agent", "Strongest delegation primitive in the set; keep."], "delegate": ["MERGE", "task", "ctx_work_graph", "Merge delegate + a2a_* into one `agents` action-enum tool."], "send_message_to_peer": ["MERGE", "wait", "ctx_share", "Merge into `agents` action=message."], "wait": ["KEEP", "-", "-", ""], "checkpoint": ["KEEP", "-", "-", ""], "rewind": ["KEEP", "-", "-", ""], "plan_mode": ["KEEP", "-", "-", ""], "plan_execute": ["KEEP", "-", "-", ""], "model_switch": ["MERGE", "-", "-", "Merge model_switch + model_routing_config into one `model` tool."], "model_routing_config": ["MERGE", "-", "-", "Merge into `model` action=route_*."], "proxy_config": ["MERGE", "-", "-", "Merge into `model` action=proxy_* (or keep separate if proxy is a distinct operator concern)."], "ask_user": ["KEEP", "ask", "-", "Channel-bridging primitive; keep."], "escalate_to_human": ["KEEP", "-", "-", "Unique to enact; keep."], "reaction": ["MERGE", "-", "-", "Merge reaction + poll + channel_room into `channel` action enum."], "poll": ["MERGE", "-", "-", "Merge into `channel` action=poll."], "channel_room": ["MERGE", "-", "-", "Merge into `channel` action=room_*."], "send_via": ["KEEP", "-", "-", "Outbound channel send; keep."], "git_forge": ["MERGE", "github", "ctx_git_read", "Merge git_forge + git_operations into `git` action enum; adopt OMP unified GitHub CLI surface."], "sessions_current": ["MERGE", "-", "ctx_session", "Merge sessions_* into one `sessions` action-enum tool."], "sessions_list": ["MERGE", "-", "ctx_session", "Merge into `sessions` action=list."], "sessions_history": ["MERGE", "-", "ctx_session", "Merge into `sessions` action=history."], "sessions_send": ["MERGE", "-", "-", "Deprecated legacy append; merge or drop in favour of agents action=message."], "sop_list": ["MERGE", "-", "-", "Merge sop_* into one `sop` action-enum tool."], "sop_execute": ["MERGE", "-", "-", "Merge into `sop` action=execute."], "sop_advance": ["MERGE", "-", "-", "Merge into `sop` action=advance."], "sop_approve": ["MERGE", "-", "-", "Merge into `sop` action=approve."], "sop_status": ["MERGE", "-", "-", "Merge into `sop` action=status."], "sop_workshop": ["MERGE", "-", "-", "Merge into `sop` action=workshop_*."], "read_skill": ["ENHANCE", "manage_skill", "ctx_skillify", "Add skill authoring (learn/manage_skill) alongside reading."], "learn": ["KEEP", "-", "-", ""], "skills_list": ["KEEP", "-", "-", ""], "skill_view": ["KEEP", "-", "-", ""], "skill_manage": ["KEEP", "-", "-", ""], "TodoWrite": ["KEEP", "todo", "-", "Task tracker; keep name and lifecycle stable."], "canvas": ["MERGE", "-", "-", "Merge canvas ops into action enum; keep shared-with-gateway store."], "deliver_file": ["KEEP", "-", "-", "ACP delivery; keep."], "llm_task": ["KEEP", "eval", "ctx_execute", "Tool-less LLM subtask; keep."], "claude_code": ["DISABLE", "-", "-", "Opt-in CLI adapter; stays feature-gated off in the Enact build."], "codex_cli": ["DISABLE", "-", "-", "Opt-in CLI adapter; stays feature-gated off in the Enact build."], "gemini_cli": ["DISABLE", "-", "-", "Opt-in CLI adapter; stays feature-gated off in the Enact build."], "opencode_cli": ["DISABLE", "-", "-", "Opt-in CLI adapter; stays feature-gated off in the Enact build."], "a2a_discover": ["MERGE", "-", "ctx_agent", "Merge a2a_* into `agents` action enum."], "a2a_send": ["MERGE", "-", "ctx_agent", "Merge into `agents` action=a2a_send."], "a2a_get_task": ["MERGE", "-", "ctx_agent", "Merge into `agents` action=a2a_task."], "a2a_cancel": ["MERGE", "-", "ctx_agent", "Merge into `agents` action=a2a_cancel."], "file_download": ["MERGE", "-", "ctx_url_read", "Merge into `web` action=download."], "security_ops": ["MERGE", "-", "-", "Merge security_ops actions into one tool (already enum-backed)."], "execute_pipeline": ["KEEP", "-", "ctx_call", "Keep; pair with tool_call escape hatch."], "tool_search": ["ENHANCE", "find", "ctx_tools", "Upgrade to BM25 discovery over ALL tools + deferred schema load (OMP/lean-ctx pattern)."], "mcp_resources": ["MERGE", "-", "-", "Merge mcp_resources + mcp_prompts into `mcp` action enum."], "mcp_prompts": ["MERGE", "-", "-", "Merge into `mcp` action=prompts_*."], "calculator": ["KEEP", "-", "-", "Tiny and harmless; keep."], "weather": ["EXT", "-", "ctx_provider", "Externalise to skill package or HTTP skill."], "pushover": ["EXT", "-", "-", "Externalise behind system.notify common path."], "screenshot": ["ENHANCE", "computer", "-", "Add desktop AX-tree access (OMP `computer`) if desktop use matters."], "image_info": ["KEEP", "-", "-", "Keep."], "browser_open": ["MERGE", "browser", "-", "Merge browser_* family into one `browser` action-enum tool (22 ops today)."], "browser": ["MERGE", "browser", "-", "22 operations -> one tool with action enum."], "browser_delegate": ["MERGE", "-", "-", "Merge into `browser` action=delegate."], "text_browser": ["MERGE", "-", "ctx_url_read", "Merge into `web` action=text."], "http_request": ["MERGE", "-", "-", "Merge http_request + web_fetch + web_search_tool into `web` action enum."], "web_search_tool": ["MERGE", "-", "-", "Merge into `web` action=search."], "notion": ["DISABLE", "-", "ctx_provider", "Opt-in SaaS; stays off. lean-ctx routes this through ctx_provider instead of a bespoke tool."], "jira": ["DISABLE", "-", "ctx_provider", "Opt-in SaaS; stays off. Route via ctx_provider-style gateway."], "linkedin": ["DISABLE", "-", "ctx_provider", "Opt-in SaaS; stays off."], "composio": ["DISABLE", "-", "ctx_tools", "Opt-in; stays off. lean-ctx's ctx_tools is the general escape hatch instead."], "google_workspace": ["DISABLE", "-", "ctx_provider", "Opt-in; stays off."], "microsoft365": ["DISABLE", "-", "ctx_provider", "Opt-in; stays off."], "project_intel": ["DISABLE", "-", "-", "Opt-in; stays off."], "report_template": ["DISABLE", "-", "-", "Opt-in; stays off."], "claude_code_runner": ["DISABLE", "-", "-", "Opt-in; stays off."], "backup": ["MERGE", "-", "-", "Merge backup actions into one tool (already enum-backed)."], "data_management": ["MERGE", "-", "ctx_cost", "Merge into `admin` action enum with retention/purge."], "cloud_ops": ["MERGE", "-", "-", "Merge cloud_ops + cloud_patterns into `cloud` action enum."], "cloud_patterns": ["MERGE", "-", "-", "Merge into `cloud` action=patterns_*."], "image_gen": ["KEEP", "generate_image", "-", "Parity with OMP generate_image."], "file_upload": ["MERGE", "-", "-", "Merge file_upload + file_upload_bundle into `transfer` action enum."], "file_upload_bundle": ["MERGE", "-", "-", "Merge into `transfer` action=upload_bundle."], "discord_search": ["EXT", "-", "-", "Channel companion; externalise."], "email_search": ["MERGE", "-", "-", "Merge email_* into `email` action enum."], "email_read": ["MERGE", "-", "-", "Merge into `email` action=read."], "knowledge": ["MERGE", "-", "ctx_knowledge", "Merge 10 knowledge actions into one tool (already enum-backed)."], "compose": ["KEEP", "-", "-", ""], "expand": ["KEEP", "-", "-", ""], "ast_grep": ["KEEP", "-", "-", ""], "ast_edit": ["KEEP", "-", "-", ""], "callgraph": ["KEEP", "-", "-", ""], "graph": ["KEEP", "-", "-", ""], "radar": ["KEEP", "-", "-", ""]}, TOOLS=[{"name": "shell", "tier": "Core", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/shell.rs", "ops": ["run_command"], "disabled": false}, {"name": "file_read", "tier": "Core", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/file_read.rs", "ops": ["read"], "disabled": false}, {"name": "file_write", "tier": "Core", "compilation": "Always", "source": "crates/zeroclaw-tools/src/file_write.rs", "ops": ["write"], "disabled": false}, {"name": "file_edit", "tier": "Core", "compilation": "Always", "source": "crates/zeroclaw-tools/src/file_edit.rs", "ops": ["edit"], "disabled": false}, {"name": "glob_search", "tier": "Core", "compilation": "Always", "source": "crates/zeroclaw-tools/src/glob_search.rs", "ops": ["search_paths"], "disabled": false}, {"name": "content_search", "tier": "Core", "compilation": "Always", "source": "crates/zeroclaw-tools/src/content_search.rs", "ops": ["search_content"], "disabled": false}, {"name": "git_operations", "tier": "Core", "compilation": "Always", "source": "crates/zeroclaw-tools/src/git_operations.rs", "ops": ["add", "branch", "checkout", "commit", "diff", "drop", "list", "log", "pop", "push", "stash", "status", "worktree"], "disabled": false}, {"name": "memory_store", "tier": "Core", "compilation": "Always", "source": "crates/zeroclaw-tools/src/memory_store.rs", "ops": ["store"], "disabled": false}, {"name": "memory_recall", "tier": "Core", "compilation": "Always", "source": "crates/zeroclaw-tools/src/memory_recall.rs", "ops": ["recall"], "disabled": false}, {"name": "memory_forget", "tier": "Core", "compilation": "Always", "source": "crates/zeroclaw-tools/src/memory_forget.rs", "ops": ["forget"], "disabled": false}, {"name": "web_fetch", "tier": "Core", "compilation": "Always", "source": "crates/zeroclaw-tools/src/web_fetch.rs", "ops": ["fetch"], "disabled": false}, {"name": "cron_add", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/cron_add.rs", "ops": ["add"], "disabled": false}, {"name": "cron_list", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/cron_list.rs", "ops": ["list"], "disabled": false}, {"name": "cron_remove", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/cron_remove.rs", "ops": ["remove"], "disabled": false}, {"name": "cron_update", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/cron_update.rs", "ops": ["update"], "disabled": false}, {"name": "cron_run", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/cron_run.rs", "ops": ["run"], "disabled": false}, {"name": "cron_runs", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/cron_runs.rs", "ops": ["list_runs"], "disabled": false}, {"name": "schedule", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/schedule.rs", "ops": ["add", "cancel", "create", "get", "list", "once", "pause", "remove", "resume"], "disabled": false}, {"name": "memory_export", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-tools/src/memory_export.rs", "ops": ["export"], "disabled": false}, {"name": "memory_purge", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-tools/src/memory_purge.rs", "ops": ["purge"], "disabled": false}, {"name": "spawn_subagent", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/spawn_subagent.rs", "ops": ["spawn"], "disabled": false}, {"name": "delegate", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/delegate.rs", "ops": ["delegate", "check_result", "list_results", "cancel_task", "await_sessions"], "disabled": false}, {"name": "send_message_to_peer", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/send_message_to_peer.rs", "ops": ["send"], "disabled": false}, {"name": "wait", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/wait_task.rs", "ops": ["wait"], "disabled": false}, {"name": "checkpoint", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/checkpoint.rs", "ops": ["checkpoint"], "disabled": false}, {"name": "rewind", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/rewind.rs", "ops": ["rewind"], "disabled": false}, {"name": "plan_mode", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/plan_mode.rs", "ops": ["status", "plan"], "disabled": false}, {"name": "plan_execute", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/plan_execute.rs", "ops": ["execute"], "disabled": false}, {"name": "model_switch", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/model_switch.rs", "ops": ["get", "list_model_providers", "list_models", "set"], "disabled": false}, {"name": "model_routing_config", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-tools/src/model_routing_config.rs", "ops": ["get", "list_hints", "remove_agent", "remove_scenario", "set_default", "upsert_agent", "upsert_scenario"], "disabled": false}, {"name": "proxy_config", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-tools/src/proxy_config.rs", "ops": ["apply_env", "clear_env", "disable", "get", "list_services", "set"], "disabled": false}, {"name": "ask_user", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-tools/src/ask_user.rs", "ops": ["ask"], "disabled": false}, {"name": "escalate_to_human", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-tools/src/escalate.rs", "ops": ["escalate"], "disabled": false}, {"name": "reaction", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-tools/src/reaction.rs", "ops": ["add", "remove"], "disabled": false}, {"name": "poll", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-tools/src/poll.rs", "ops": ["poll"], "disabled": false}, {"name": "channel_room", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-tools/src/channel_room.rs", "ops": ["create_room", "invite_user"], "disabled": false}, {"name": "send_via", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-tools/src/send_via.rs", "ops": ["send"], "disabled": false}, {"name": "git_forge", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-tools/src/git_forge.rs", "ops": ["describe", "typed_resource_action", "raw"], "disabled": false}, {"name": "sessions_current", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-tools/src/sessions.rs", "ops": ["current"], "disabled": false}, {"name": "sessions_list", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-tools/src/sessions.rs", "ops": ["list"], "disabled": false}, {"name": "sessions_history", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-tools/src/sessions.rs", "ops": ["history"], "disabled": false}, {"name": "sessions_send", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-tools/src/sessions.rs", "ops": ["send"], "disabled": false}, {"name": "sop_list", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/sop_list.rs", "ops": ["list"], "disabled": false}, {"name": "sop_execute", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/sop_execute.rs", "ops": ["execute"], "disabled": false}, {"name": "sop_advance", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/sop_advance.rs", "ops": ["advance"], "disabled": false}, {"name": "sop_approve", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/sop_approve.rs", "ops": ["approve"], "disabled": false}, {"name": "sop_status", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/sop_status.rs", "ops": ["status"], "disabled": false}, {"name": "sop_workshop", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/sop_workshop.rs", "ops": ["propose", "capture_run", "list", "inspect", "apply", "reject", "quarantine"], "disabled": false}, {"name": "read_skill", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/read_skill.rs", "ops": ["read"], "disabled": false}, {"name": "learn", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/learn.rs", "ops": ["learn"], "disabled": false}, {"name": "skills_list", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/skill_manage.rs", "ops": ["list"], "disabled": false}, {"name": "skill_view", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/skill_manage.rs", "ops": ["view"], "disabled": false}, {"name": "skill_manage", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/skill_manage.rs", "ops": ["patch", "write_file", "archive"], "disabled": false}, {"name": "TodoWrite", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/todo_write.rs", "ops": ["write_task_list"], "disabled": false}, {"name": "canvas", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-tools/src/canvas.rs", "ops": ["clear", "eval", "render", "snapshot"], "disabled": false}, {"name": "deliver_file", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/deliver_file.rs", "ops": ["deliver"], "disabled": false}, {"name": "llm_task", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-tools/src/llm_task.rs", "ops": ["run_subtask"], "disabled": false}, {"name": "claude_code", "tier": "Host", "compilation": "OptIn(OptInTool::ClaudeCode)", "source": "crates/zeroclaw-tools/src/claude_code.rs", "ops": ["run_cli"], "disabled": true}, {"name": "codex_cli", "tier": "Host", "compilation": "OptIn(OptInTool::CodexCli)", "source": "crates/zeroclaw-tools/src/codex_cli.rs", "ops": ["run_cli"], "disabled": true}, {"name": "gemini_cli", "tier": "Host", "compilation": "OptIn(OptInTool::GeminiCli)", "source": "crates/zeroclaw-tools/src/gemini_cli.rs", "ops": ["run_cli"], "disabled": true}, {"name": "opencode_cli", "tier": "Host", "compilation": "OptIn(OptInTool::OpenCodeCli)", "source": "crates/zeroclaw-tools/src/opencode_cli.rs", "ops": ["run_cli"], "disabled": true}, {"name": "a2a_discover", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-tools/src/a2a_client.rs", "ops": ["discover"], "disabled": false}, {"name": "a2a_send", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-tools/src/a2a_client.rs", "ops": ["send"], "disabled": false}, {"name": "a2a_get_task", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-tools/src/a2a_client.rs", "ops": ["get_task"], "disabled": false}, {"name": "a2a_cancel", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-tools/src/a2a_client.rs", "ops": ["cancel"], "disabled": false}, {"name": "file_download", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-tools/src/file_download.rs", "ops": ["download"], "disabled": false}, {"name": "security_ops", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/security_ops.rs", "ops": ["alert_stats", "generate_report", "list_playbooks", "parse_vulnerability", "run_playbook", "triage_alert"], "disabled": false}, {"name": "execute_pipeline", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-tools/src/pipeline.rs", "ops": ["execute"], "disabled": false}, {"name": "tool_search", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-tools/src/tool_search.rs", "ops": ["search"], "disabled": false}, {"name": "mcp_resources", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-tools/src/mcp_resources_tool.rs", "ops": ["list", "read"], "disabled": false}, {"name": "mcp_prompts", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-tools/src/mcp_prompts_tool.rs", "ops": ["list", "get"], "disabled": false}, {"name": "calculator", "tier": "Optional", "compilation": "Always", "source": "crates/zeroclaw-tools/src/calculator.rs", "ops": ["calculate"], "disabled": false}, {"name": "weather", "tier": "Optional", "compilation": "External", "source": "crates/zeroclaw-tools/src/weather_tool.rs", "ops": ["lookup"], "disabled": false}, {"name": "pushover", "tier": "Optional", "compilation": "External", "source": "crates/zeroclaw-tools/src/pushover.rs", "ops": ["notify"], "disabled": false}, {"name": "screenshot", "tier": "Optional", "compilation": "External", "source": "crates/zeroclaw-tools/src/screenshot.rs", "ops": ["capture"], "disabled": false}, {"name": "image_info", "tier": "Optional", "compilation": "Always", "source": "crates/zeroclaw-tools/src/image_info.rs", "ops": ["inspect"], "disabled": false}, {"name": "browser_open", "tier": "Optional", "compilation": "External", "source": "crates/zeroclaw-tools/src/browser_open.rs", "ops": ["open"], "disabled": false}, {"name": "browser", "tier": "Optional", "compilation": "External", "source": "crates/zeroclaw-tools/src/browser.rs", "ops": ["click", "close", "fill", "find", "get_text", "get_title", "get_url", "hover", "is_visible", "key_press", "key_type", "mouse_click", "mouse_drag", "mouse_move", "open", "press", "screen_capture", "screenshot", "scroll", "snapshot", "type", "wait"], "disabled": false}, {"name": "browser_delegate", "tier": "Optional", "compilation": "External", "source": "crates/zeroclaw-tools/src/browser_delegate.rs", "ops": ["delegate"], "disabled": false}, {"name": "text_browser", "tier": "Optional", "compilation": "External", "source": "crates/zeroclaw-tools/src/text_browser.rs", "ops": ["browse"], "disabled": false}, {"name": "http_request", "tier": "Optional", "compilation": "Always", "source": "crates/zeroclaw-tools/src/http_request.rs", "ops": ["request"], "disabled": false}, {"name": "web_search_tool", "tier": "Optional", "compilation": "External", "source": "crates/zeroclaw-tools/src/web_search_tool.rs", "ops": ["search"], "disabled": false}, {"name": "notion", "tier": "Optional", "compilation": "OptIn(OptInTool::Notion)", "source": "crates/zeroclaw-tools/src/notion_tool.rs", "ops": ["create_page", "query_database", "read_page", "search", "update_page"], "disabled": true}, {"name": "jira", "tier": "Optional", "compilation": "OptIn(OptInTool::Jira)", "source": "crates/zeroclaw-tools/src/jira_tool.rs", "ops": ["comment_ticket", "create_ticket", "get_ticket", "list_projects", "list_transitions", "myself", "search_tickets", "transition_ticket"], "disabled": true}, {"name": "linkedin", "tier": "Optional", "compilation": "OptIn(OptInTool::LinkedIn)", "source": "crates/zeroclaw-tools/src/linkedin.rs", "ops": ["comment", "create_post", "delete_post", "get_content_strategy", "get_engagement", "get_profile", "list_posts", "react"], "disabled": true}, {"name": "composio", "tier": "Optional", "compilation": "OptIn(OptInTool::Composio)", "source": "crates/zeroclaw-tools/src/composio.rs", "ops": ["connect", "connected_accounts", "execute", "list", "list_accounts"], "disabled": true}, {"name": "google_workspace", "tier": "Optional", "compilation": "OptIn(OptInTool::GoogleWorkspace)", "source": "crates/zeroclaw-tools/src/google_workspace.rs", "ops": ["service/resource/method"], "disabled": true}, {"name": "microsoft365", "tier": "Optional", "compilation": "OptIn(OptInTool::Microsoft365)", "source": "crates/zeroclaw-tools/src/microsoft365/mod.rs", "ops": ["calendar_event_create", "calendar_event_delete", "calendar_events_list", "mail_list", "mail_send", "onedrive_download", "onedrive_list", "sharepoint_search", "teams_message_list", "teams_message_send"], "disabled": true}, {"name": "project_intel", "tier": "Optional", "compilation": "OptIn(OptInTool::ProjectIntel)", "source": "crates/zeroclaw-tools/src/project_intel.rs", "ops": ["draft_update", "effort_estimate", "risk_scan", "sprint_summary", "status_report"], "disabled": true}, {"name": "report_template", "tier": "Optional", "compilation": "OptIn(OptInTool::ProjectIntel)", "source": "crates/zeroclaw-tools/src/report_template_tool.rs", "ops": ["render_template"], "disabled": true}, {"name": "claude_code_runner", "tier": "Optional", "compilation": "OptIn(OptInTool::ClaudeCodeRunner)", "source": "crates/zeroclaw-tools/src/claude_code_runner.rs", "ops": ["run_cli"], "disabled": true}, {"name": "backup", "tier": "Optional", "compilation": "Always", "source": "crates/zeroclaw-tools/src/backup_tool.rs", "ops": ["create", "list", "verify", "restore"], "disabled": false}, {"name": "data_management", "tier": "Optional", "compilation": "Always", "source": "crates/zeroclaw-tools/src/data_management.rs", "ops": ["retention_status", "purge", "stats"], "disabled": false}, {"name": "cloud_ops", "tier": "Optional", "compilation": "Always", "source": "crates/zeroclaw-tools/src/cloud_ops.rs", "ops": ["architecture_review", "assess_migration", "cost_analysis", "review_iac"], "disabled": false}, {"name": "cloud_patterns", "tier": "Optional", "compilation": "Always", "source": "crates/zeroclaw-tools/src/cloud_patterns.rs", "ops": ["list", "match"], "disabled": false}, {"name": "image_gen", "tier": "Optional", "compilation": "External", "source": "crates/zeroclaw-tools/src/image_gen.rs", "ops": ["generate"], "disabled": false}, {"name": "file_upload", "tier": "Optional", "compilation": "Always", "source": "crates/zeroclaw-tools/src/file_upload.rs", "ops": ["upload"], "disabled": false}, {"name": "file_upload_bundle", "tier": "Optional", "compilation": "Always", "source": "crates/zeroclaw-tools/src/file_upload_bundle.rs", "ops": ["upload_bundle"], "disabled": false}, {"name": "discord_search", "tier": "Optional", "compilation": "Always", "source": "crates/zeroclaw-tools/src/discord_search.rs", "ops": ["search"], "disabled": false}, {"name": "email_search", "tier": "Optional", "compilation": "External", "source": "crates/zeroclaw-tools/src/email_search.rs", "ops": ["search"], "disabled": false}, {"name": "email_read", "tier": "Optional", "compilation": "External", "source": "crates/zeroclaw-tools/src/email_read.rs", "ops": ["read"], "disabled": false}, {"name": "knowledge", "tier": "Optional", "compilation": "Always", "source": "crates/zeroclaw-tools/src/knowledge_tool.rs", "ops": ["capture", "search", "relate", "suggest", "expert_find", "lessons_extract", "graph_stats", "graph_neighbors", "client_network", "interaction_log"], "disabled": false}, {"name": "compose", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/compose.rs", "ops": ["assemble"], "disabled": false}, {"name": "expand", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/expand.rs", "ops": ["retrieve"], "disabled": false}, {"name": "ast_grep", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/ast_grep.rs", "ops": ["search"], "disabled": false}, {"name": "ast_edit", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/ast_grep.rs", "ops": ["rewrite"], "disabled": false}, {"name": "callgraph", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/callgraph.rs", "ops": ["analyse"], "disabled": false}, {"name": "graph", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/callgraph.rs", "ops": ["dependencies"], "disabled": false}, {"name": "radar", "tier": "Host", "compilation": "Always", "source": "crates/zeroclaw-runtime/src/tools/radar.rs", "ops": ["report"], "disabled": false}], NEW=[["compose", "One-call context assembly: ranked files + inline source for a task", "lean-ctx ctx_compose", "P0", "Context", "Replaces search->read->read chains. Highest-leverage single addition: it is the anti-pattern fix lean-ctx documents explicitly."], ["expand", "Retrieve archived / withheld tool output by handle", "lean-ctx ctx_expand", "P0", "Context", "Makes compression lossless. Without it, any token-saving tool destroys information the agent may need again."], ["read_modes", "Read modes on file_read: signatures, outline, diff, anchored, task", "lean-ctx ctx_read", "P0", "Context", "Turns whole-file reads into structural reads. Orientation stops costing a full file."], ["outline", "Syntax-aware symbol table for a file or directory (tree-sitter)", "lean-ctx ctx_outline", "P0", "Code intel", "Lets the agent orient in a repo without reading source bodies."], ["delta", "Only the lines changed since the last read of a file", "lean-ctx ctx_delta", "P1", "Context", "Cheap re-read replacement. Pairs with the read cache."], ["patch", "Hash-anchored edits with stale-anchor conflict detection", "lean-ctx ctx_patch", "P1", "Files", "Upgrade path for file_edit. Prevents silent lost-update edits."], ["compress", "Compress the read cache to reclaim token budget", "lean-ctx ctx_compress", "P1", "Context", "Explicit budget control rather than implicit trimming."], ["transcript_compact", "Deterministic transcript compaction with recoverable summary", "lean-ctx ctx_transcript_compact", "P1", "Context", "Supersedes blunt history trimming: system + fresh tail stay verbatim, older turns are recoverable."], ["radar", "Context budget breakdown: system prompt / messages / tools / reads / shell", "lean-ctx ctx_radar", "P1", "Observability", "Makes context spend inspectable. enact-agent has cost tracking but no context attribution."], ["metrics", "Cache hit rates and per-tool context savings", "lean-ctx ctx_metrics", "P2", "Observability", "Measures whether the context tooling is actually earning its place."], ["context_control", "Reversible overlays on delivered context: exclude / include / pin / evict", "lean-ctx ctx_control", "P1", "Context", "Field-theory control surface over what the model sees, scoped per call/session/project."], ["preload", "Cache task-relevant files and return an L-curve-optimised summary", "lean-ctx ctx_preload", "P2", "Context", "Proactive context warming before the model spends turns searching."], ["prefetch", "Warm the cache for blast-radius files under a token budget", "lean-ctx ctx_prefetch", "P2", "Context", "Same idea, scoped to a change set."], ["dedup", "Cross-file dedup hints for read output", "lean-ctx ctx_dedup", "P2", "Context", "Removes repeated boilerplate from multi-file reads."], ["graph", "File dependency graph, impact chains, Mermaid diagrams", "lean-ctx ctx_graph", "P1", "Code intel", "Structural blast-radius analysis that content search cannot give."], ["callgraph", "Function call edges: callers, callees, trace, risk", "lean-ctx ctx_callgraph", "P1", "Code intel", "The single best code-intelligence primitive; lean-ctx ships it in the 12-tool lazy core."], ["impact", "Blast-radius analysis for a proposed change", "lean-ctx ctx_impact", "P2", "Code intel", "Composes graph + callgraph for a concrete change set."], ["semantic_search", "Hybrid BM25 + dense + SPLADE retrieval with RRF merge", "lean-ctx ctx_search", "P1", "Search", "Semantic recall where regex fails. Complement, not replace, content_search."], ["ast_grep", "Structural code queries over tree-sitter grammars", "OMP ast_grep", "P0", "Code intel", "Pattern search that survives renames and formatting. Nothing in enact-agent matches this."], ["ast_edit", "Structural rewrites, previewed before apply", "OMP ast_edit", "P1", "Code intel", "Mechanical refactors across many files, with a review step."], ["lsp", "Diagnostics, navigation, symbols, renames, code actions", "OMP lsp", "P1", "Code intel", "Compiler-grade facts instead of guessing from grep."], ["debug", "Drive a DAP session: breakpoints, stepping, threads, stack, variables", "OMP debug", "P2", "Code intel", "Runtime state inspection. High value for debugging agents."], ["find", "Semantic grep: describe behaviour, get ranked files and line ranges", "OMP find", "P1", "Search", "Behaviour-first retrieval. OMP gates it behind a judge model."], ["eval", "Persistent Python / JavaScript cells with shared prelude", "OMP eval", "P2", "Runtime", "Real computation and scripting without shelling out."], ["checkpoint", "Mark conversation state for a later collapse-and-report", "OMP checkpoint", "P1", "Context", "Cheap rollback point for a long exploratory turn."], ["rewind", "Prune exploratory context, keep a concise report", "OMP rewind", "P1", "Context", "Sister tool of checkpoint. OMP auto-includes the pair: a one-sided tool strands the agent."], ["new_context", "Request a fresh context window, preserving notebook and branch history", "OMP new_context", "P1", "Context", "Explicit context reset instead of relying on auto-compaction."], ["context_notes", "Persistent experimental context notebook for the branch", "OMP context_notes", "P2", "Context", "Scratch space that survives a context reset."], ["learn", "Capture a reusable lesson, optionally promote it into a managed skill", "OMP learn", "P1", "Memory", "Closes the loop from a correction to a durable capability. enact-agent has SOP workshop but no lesson capture."], ["manage_skill", "Create, update, or delete an isolated managed skill", "OMP manage_skill", "P1", "Skills", "enact-agent implements skill_manage but deliberately does not register it in the agent registry."], ["security_scan", "Plan and run native security reviews over the diff", "OMP security_scan", "P2", "Security", "Proactive review. Complements the reactive security_ops tool."], ["github", "Unified GitHub CLI surface: repo, PR, issue, code search, Actions watch", "OMP github", "P1", "Git", "One interface instead of separate gh_* tools. Maps onto the existing git_forge family."], ["wait", "Block until the next background result, peer message, or steering interrupt", "OMP wait", "P1", "Coordination", "Lets the agent await async work instead of polling. act/lean-ctx both forbid polling."], ["computer", "Drive the host desktop: windows, screenshots, native input, AX tree, clipboard", "OMP computer", "P2", "Desktop", "Native app control with no browser DOM involved."], ["goal", "Create, inspect, or drop a durable goal record with token/time budget", "OMP goal", "P2", "Coordination", "enact-agent has a /goal command but no model-callable goal tool."], ["think", "External thinking channel, separate from the visible assistant message", "OMP think", "P3", "Reasoning", "Lets reasoning stay out of the user-visible transcript."], ["context_proof", "Machine-readable proof of what context was produced and whether it reproduces", "lean-ctx ctx_proof", "P3", "Observability", "Auditability for regulated deployments."], ["work_graph", "Project-scoped coordination graph across agents: claim, receipt, fuse, attribute", "lean-ctx ctx_work_graph", "P2", "Coordination", "Multi-agent work accounting. Complements spawn_subagent / delegate."], ["tool_call", "Invoke any registered tool by name and arguments", "lean-ctx ctx_call", "P1", "Platform", "Universal escape hatch, so rarely-used tools need not sit in the schema at all."], ["context_package", "Portable session / summary / knowledge bundles for handoff", "lean-ctx ctx_package", "P2", "Session", "Cross-agent, cross-machine context transfer."], ["shadow_checkpoint", "Shadow git history of the agent's changes, isolated from project .git", "lean-ctx ctx_checkpoint", "P2", "Session", "Safe snapshot/restore that does not pollute the user's repository."], ["semantic_provider", "External context gateways: GitHub, GitLab, Jira, Postgres, MCP bridges", "lean-ctx ctx_provider", "P2", "Platform", "One gateway replacing N bespoke SaaS tools (the pattern for notion/jira/linkedin/etc)."], ["project_doc", "Documentation pages bound to code, with history", "lean-ctx ctx_doc", "P3", "Knowledge", "Docs and code versioned together."], ["semantic_project_tasks", "Project task board with claim / submit / verify / decide", "lean-ctx ctx_tasks", "P2", "Coordination", "External task system integration; Hive-gated in lean-ctx."]], HOOKS=[["User-writable hook scripts", "no (Rust trait only)", "yes (TS/JS modules)", "yes (JSON/TOML installers)", "BLOCKER"], ["Hook discovery location", "-", ".omp/hooks/{pre,post}/*.ts", "~/.claude/settings.json + 10 other hosts", "BLOCKER"], ["Pre-tool-call block", "yes", "yes", "yes", "ok"], ["Pre-tool-call rewrite of args", "yes", "yes", "yes", "ok"], ["Post-tool-call output rewrite", "no", "yes", "yes (governor, read-dedup)", "ADD"], ["Cancel / deny a call", "yes (Cancel)", "yes ({block:true})", "yes (deny/rights/protected)", "ok"], ["Inject context before the model call", "yes (before_llm_call)", "yes (additionalContext)", "yes (additionalContext)", "ok"], ["Trusted vs untrusted context split", "no", "yes (documented)", "partial", "ADD"], ["Session start / end events", "yes", "yes", "yes", "ok"], ["Pre-compaction / post-compaction", "no", "yes", "yes", "ADD"], ["Turn / agent start / end events", "partial (llm_input/output)", "yes", "partial", "ok"], ["Subagent spawn interception", "no", "yes", "no", "ADD"], ["Provider request/response interception", "no", "yes", "no", "ADD"], ["Prompt / message rewriting", "partial (prompt_build)", "yes (context chain)", "partial", "ok"], ["Channel message interception", "yes", "no", "no", "KEEP"], ["Heartbeat / tick event", "yes", "no", "no", "KEEP"], ["Hook execution budget / timeout", "no", "yes (30 s)", "yes (2 s / 15 s)", "ADD"], ["Fail-open vs fail-closed semantics", "n/a", "fail-closed on throw", "fail-open, fail-closed on policy", "ADD"], ["Hook ordering / conflict rules", "priority ordering", "documented per event", "profile-driven", "ok"], ["Panic isolation", "yes", "no", "no", "KEEP"], ["Correlation identity across phases", "yes (ToolCallHookContext)", "no", "n/a", "KEEP"], ["Abandonment / release signal", "yes (on_tool_call_abandoned)", "no", "no", "KEEP"], ["Multi-host dialect support", "no", "no", "yes (11 hosts)", "P2"], ["Plugin hook capability", "no (PluginCapability has no Hook)", "yes (extension API)", "n/a", "ADD"], ["Hook configuration docs page", "no", "yes (docs/hooks.md)", "yes (PROTECTED-HOOKS.md)", "ADD"]];
+const HOSTS=[["enact-agent", "Rust", "agent runtime", "yes", "NO", "Rust trait only \u2014 no user script", "AGENTS.md", "via MCP", "via MCP", "GAP", "MCP client only. No server mode, so it cannot hand its tool set to another host yet."], ["jcode", "Rust", "agent harness", "yes", "no", "8 external-program hooks (docs/HOOKS.md)", "AGENTS.md + Harness API", "native (OAuth + MCP config interop)", "native (OAuth + config import)", "STRONG", "34 built-ins. Harness API = versioned NDJSON boundary for any UI \u2014 and it lets an EXTERNAL client inject a tool set via ConfigureTools { custom }."], ["goose (Block / AAIF)", "Rust", "agent", "yes", "no", "n/a", "YAML recipes", "reads ~/.claude/agents + ~/.claude/skills", "via MCP", "STRONG", "70+ MCP extensions. Imports Claude Desktop's MCP config on first run. Extensions are plain MCP servers \u2014 usable by any MCP client."], ["lean-ctx", "Rust", "context engine", "yes", "YES (51 tools)", "17 actions \u00d7 11 host dialects", "SKILL.md", "installs ~/.claude/settings.json hooks", "installs ~/.codex/hooks.json", "STRONG", "The reference implementation of a hook layer that spans Claude Code, Codex, Cursor, Windsurf, Gemini, Copilot, Kiro, Cline, Vibe."], ["oh-my-pi", "Rust + TS", "agent", "yes", "no", "TS modules in .omp/hooks/{pre,post}", "SKILL.md", "reads .claude/skills + .claude/tools", "reads ~/.codex/tools", "STRONG", "30 built-ins. 13 essential in the schema, the rest behind xd:// devices + BM25 search."], ["Serena", "Python", "MCP server", "n/a", "YES", "n/a", "n/a", "native (--context ide-assistant)", "native (--context codex)", "STRONG", "LSP-based semantic code retrieval + editing as one MCP server. Works in every MCP host; Codex needs a special context because it does not fully implement MCP."], ["OMX (oh-my-codex)", "Node/TS", "Codex orchestration", "yes (state plane)", "yes", "Codex-native hooks (.codex/hooks.json)", "AGENTS.md", "via AGENTS.md + MCP", "native", "STRONG", "Three-plane model: Codex executes, omx controls, MCP servers hold state. 25+ workflow skills, 32 agents."], ["Claude Code", "TS", "agent", "yes", "YES (claude mcp serve)", "settings.json hooks (documented)", "CLAUDE.md + AGENTS.md", "native", "via MCP", "REFERENCE", "The only host that can also serve its own tools as MCP. Has MCP Tool Search for deferred schemas."], ["Codex CLI", "Rust", "agent", "yes (partial)", "NO", ".codex/hooks.json + .rules policy files", "AGENTS.md", "via MCP", "native", "REFERENCE", "MCP client only, and does not fully implement the spec. No extension system beyond AGENTS.md + .rules."]], PORT=[["1 \u00b7 Tools", "Ship one MCP server", "MCP is the only substrate every host speaks. Claude Code can even serve its own tools (`claude mcp serve`); Codex cannot \u2014 so an MCP server is the only way to give Codex a tool set you control.", "enact-agent has no server mode today. This is the single highest-leverage change for the 'one system' goal."], ["2 \u00b7 Tools, take two", "Or offer a tool-injection API", "jcode's Harness API exposes `ConfigureTools { enabled, disabled, custom }`: an external client registers its own tool implementations, the model calls them, and the runtime routes the call back down that client's connection. The custom tool is an execution adapter only \u2014 it never enters the shared registry, so hooks, telemetry, output limits and permission gates behave exactly as for built-ins.", "This is the richer alternative to MCP when you own the host: the tool implementations stay in your process, and the runtime keeps its safety model intact."], ["3 \u00b7 Schema budget", "Expose search + call, not N schemas", "jcode collapses MCP servers into a fixed `mcp` / `mcp_search` / `mcp_call` surface with a 32-reference cap and a 6 000-token result budget; providers with native deferred loading get `defer_loading` instead. Claude Code has MCP Tool Search; oh-my-pi uses xd:// devices + BM25.", "enact-agent already has `tool_search` and `mcp_deferred` \u2014 extend the same idea to MCP servers."], ["4 \u00b7 Behaviour", "Per-host hook dialects", "lean-ctx is the reference: 17 hook actions rendered into 11 host dialects, each installer writing that host's own config file. jcode keeps it simpler \u2014 eight external-program hooks, one command per event.", "Ship Claude Code `settings.json` and Codex `.codex/hooks.json` installers. Do not invent a new hook format."], ["5 \u00b7 Instructions", "AGENTS.md + SKILL.md", "Codex reads AGENTS.md natively. Claude Code reads AGENTS.md only when no CLAUDE.md exists (v2.1.277+), or you put an `@path` import on line 1 of CLAUDE.md, or set project instructions to claude-md-and-agents-md.", "One AGENTS.md, one SKILL.md, imported by both. AGENTS.md is capped at 32 KiB by default. jcode, goose and oh-my-pi all already read these paths."], ["6 \u00b7 Policy", "Degrade to each host's own rules", "Codex uses `.rules` files (allow / prompt / forbidden). Claude Code uses permissions in settings.json. They are not the same model and should not be unified.", "A shared tool must respect the host's policy rather than assume it. enact-agent's availability-vs-authorization split maps cleanly onto this."]], JTOOLS=[["read", "Read a file with line numbers, offset/limit"], ["write", "Create or overwrite a file"], ["edit", "Exact string replacement; also absorbs the old `multiedit`"], ["apply_patch", "Unified-diff / Codex-envelope patch application; absorbs the old `patch`"], ["bash", "Shell execution"], ["agentgrep", "Search with modes: grep (default), find (file names), outline (one file's structure), trace (relationship DSL)"], ["bash / bg", "Move a long-running tool to the background, poll it"], ["batch", "Run several tool calls in one turn, optionally parallel"], ["codemode", "Opt-in: run model-written JS in a QuickJS sandbox that can call any session tool"], ["memory", "Semantic memory graph: remember, recall, search, list, forget, tag, link, related"], ["session_search", "Search past session transcripts"], ["conversation_search", "Search the current conversation history"], ["swarm", "Multi-agent coordination \u2014 impl `CommunicateTool`"], ["skill_manage", "Load, list, reload and read skills"], ["todo", "Todo list with phases, lanes and dependencies"], ["browser", "Browser automation"], ["macos_computer_use", "Native macOS desktop control (macOS only)"], ["open", "Open a file, URL or app"], ["webfetch", "HTTP fetch a URL"], ["websearch", "Web search (DDG / Bing / SearXNG / Kagi / custom)"], ["compile_remote", "Remote compile and verify"], ["schedule", "Ambient and background scheduling"], ["gmail", "Gmail access"], ["calendar", "Calendar access"], ["panel", "Render into the main panel"], ["side_panel", "Render into the side panel"], ["applet", "Mount declarative native UI into the session (desktop only)"], ["user_response", "Inline user-response UI (desktop only)"], ["selfdev", "Self-development mode"], ["desktop_selfdev", "Desktop self-development"], ["jcode_docs", "Query jcode's own bundled documentation"], ["integration_tools", "Opt-in: integration and app catalog"], ["maintainer_feedback", "Submit maintainer feedback"], ["mcp", "MCP management \u2014 connect, disconnect, reload, list servers, action=call"], ["mcp__<server>__<tool>", "Per-server proxy tools, registered dynamically"]], JFACTS=[["Language / licence", "Rust (91.6% of the repo) \u00b7 MIT \u00b7 ~21k stars \u00b7 single native binary, no Node or Python runtime"], ["Registered tools", "34 built-ins (27 base + 4 per-session + the `mcp` family + 2 desktop-only), plus dynamically registered `mcp__<server>__<tool>` proxies"], ["Not registered", "`ls`, `glob`, `grep`, `subagent`, `goal`, `plan`, `rewind`, `checkpoint` are NOT model-callable tools. `ls` and `grep` survive only as alias names; the `acp` and `minimal` tool profiles still list `ls`, which is a dangling reference. Rewind is a Harness API request, not a tool."], ["Harness API", "Stable, versioned client API over a Unix socket, spoken as NDJSON. `API_VERSION_MAJOR` 1 / `API_VERSION_MINOR` 11. Every frame carries `v`; clients must ignore unknown fields and skip unknown event kinds. Explicitly the public boundary between the harness and any UI (TUI, desktop, web, scripts), and deliberately smaller than the internal `jcode-protocol`."], ["\u2605 External tool injection", "`ApiRequest::ConfigureTools { session_id, tools: ToolConfiguration }` carries `enabled`, `disabled` and `custom: Vec<SessionToolDefinition>`. A custom tool may override a built-in of the same name. The model calls it, the server emits a `ToolCall` event down the client's own connection, the client replies with `ToolResult` (120 s deadline). This is a complete, versioned contract for handing a tool set to a runtime from outside it."], ["\u2605 Injected tools keep builtin semantics", "A custom tool is an \"execution adapter only, never installed in the shared registry\" \u2014 so hooks, telemetry, output limits and permission gates behave exactly as they do for built-ins."], ["External-program hooks", "Eight hook keys in `docs/HOOKS.md` \u2014 `pre_tool`, `pre_tool_transform`, `post_tool`, `post_tool_feedback`, `turn_start`, `turn_end`, `session_start`, `session_end`. Each is a command string or array; observers run in order, gates run sequentially and the first block wins. `post_tool_feedback` appends its stdout to the tool result, which is how linters and checkers feed findings back to the model."], ["MCP config interop", "Project precedence: `.jcode/mcp.json` \u2192 `.mcp.json` (Claude Code) \u2192 `.claude/mcp.json`. Claude Code is a LIVE source (`~/.claude.json` and `~/.claude/mcp.json`) and is never copied. Codex is a one-time import from `~/.codex/config.toml` `[mcp_servers.*]`, and only while `~/.jcode/mcp.json` does not exist \u2014 the stated reason is that persisting a live source would resurrect deleted servers and duplicate inline secrets."], ["Server preference", "Runnable wins. A remote twin of a working local stdio server does not overwrite it, because a remote twin usually needs a separate login. A broken higher-precedence entry does not shadow a working one."], ["Schema bloat control", "Three layers: provider-native deferred loading (`defer_loading` + `cache_control`) where supported; a fixed `mcp` / `mcp_search` / `mcp_call` surface elsewhere; and transcript announcement for tools that arrive late. `mcp_search` caps at 32 tool references under a 6 000-token budget, drops description-only matches once a name matches, and trims descriptions before dropping schemas."], ["Prompt-cache safety", "The tool list is locked after the first request. Exactly ONE deliberate rebuild is permitted, latched by a one-shot guard that is deliberately NOT re-armed. Definitions are sorted by name because ordering is a cache requirement. An AGENTS.md snapshot keeps the cacheable prefix stable when a tool edits it mid-session."], ["Advertise-early", "Proxy tools are registered from the on-disk schema cache before connections settle, so the first locked snapshot already contains MCP tools and the intentional cache miss can be avoided entirely."], ["Tool profiles", "`full` (default) | `acp` | `minimal` | `none`, plus explicit allow/deny lists, `disable_base_tools` and `mcp_tools = auto|eager|deferred`. Deny beats allow; `disabled: [\"mcp\"]` disables every MCP tool at once."], ["Canonical alias table", "`resolve_tool_name()` maps every host's vocabulary onto one internal name \u2014 `Bash`, `file_grep`, `shell_exec`, `functions.bash`, `todoread`, `multiedit`, `patch`, `communicate` \u2014 with a matching provider-side reverse map."], ["Swarm", "One tool (`communicate`, exposed as `swarm`). The server coordinates agents in the same repo: a `FileTouch` bus event detects contention and emits a `FileConflict` notification plus a soft interrupt to BOTH parties. Detection and notification only \u2014 no automatic merge; cross-agent write serialization is a process-local mutex."], ["Memory graph", "A typed graph, not a key-value store: weighted edges, tag and cluster nodes, and `supersede` edges. Recall is link-traversal-capable (`related`, `link`, `tag`), so a memory can be found through its relationships and not only by similarity."], ["Providers", "Anthropic (OAuth), OpenAI / Codex OAuth, Gemini, Copilot, OpenRouter, Antigravity, Bedrock, Cursor, Grok Build, plus a large OpenAI-compatible catalog. Anthropic OAuth beta headers deliberately do NOT claim `claude-code`."], ["Skills & extensions", "Skills are Markdown + YAML frontmatter with `allowed-tools`, discovered from `.jcode/skills`, `.claude/skills` and `.agents/skills`, invoked as `/name`, overlaid per session at read time. Applets mount declarative native UI. Codemode is a QuickJS sandbox that can call any session tool."]];
+const JHOOKS=[["pre_tool", "Before a tool call", "Gate \u2014 may block the call"], ["pre_tool_transform", "Before a tool call", "Transformer \u2014 may rewrite the arguments"], ["post_tool", "After a tool call", "Observer \u2014 sees the result"], ["post_tool_feedback", "After a successful tool call", "Feeds stdout back into the tool result \u2014 the linter/checker loop"], ["turn_start", "Start of a turn", "Observer"], ["turn_end", "End of a turn", "Observer"], ["session_start", "Session opens", "Observer"], ["session_end", "Session closes", "Observer"]];
+
+const tierColor=t=>t==='Core'?'var(--keep)':t==='Host'?'var(--acc)':'var(--tx3)';
+const compShort=c=>c==='Always'?'always':c==='External'?'external':(c.startsWith('OptIn')?'opt-in':'—');
+
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+
+function renderTools(){
+  const q=(document.getElementById('q').value||'').toLowerCase();
+  const fv=document.getElementById('fv').value;
+  const ft=document.getElementById('ft').value;
+  const fs=document.getElementById('fs').value;
+  let rows=TOOLS.map(t=>{
+    const v=V[t.name]||['KEEP','','',''];
+    return {...t,v};
+  }).filter(t=>{
+    if(fv&&t.v[0]!==fv)return false;
+    if(ft&&t.tier!==ft)return false;
+    if(fs==='on'&&t.disabled)return false;
+    if(fs==='off'&&!t.disabled)return false;
+    if(q){
+      const hay=(t.name+' '+t.ops.join(' ')+' '+t.v[1]+' '+t.v[2]+' '+t.v[3]+' '+t.tier).toLowerCase();
+      if(!hay.includes(q))return false;
+    }
+    return true;
+  });
+  const tb=document.getElementById('tbody');
+  tb.innerHTML=rows.map(t=>{
+    const omp=t.v[1],lcx=t.v[2];
+    const dot=v=>v&&v!=='-'&&v!==''?'<span class="dot y"></span>':'<span class="dot n"></span>';
+    return `<tr>
+      <td><div class="tname">${esc(t.name)}</div>
+          <div class="comp">${compShort(t.compilation)}${t.disabled?' · <span class="off">off</span>':''}</div></td>
+      <td><div class="ops"><b>${t.ops.length}</b> · ${t.ops.map(o=>esc(o)).join(', ')}</div></td>
+      <td><span class="tier ${t.tier}">${t.tier}</span></td>
+      <td><span class="v v-${t.v[0]}">${t.v[0]}</span></td>
+      <td>${dot(omp)}<span style="font-size:11.5px;color:var(--tx3)">${omp&&omp!=='-'?esc(omp):'—'}</span></td>
+      <td>${dot(lcx)}<span style="font-size:11.5px;color:var(--tx3)">${lcx&&lcx!=='-'?esc(lcx):'—'}</span></td>
+      <td><div class="note">${esc(t.v[3])}</div></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('cnt').textContent=rows.length+' of '+TOOLS.length+' tools';
+}
+function renderNew(){
+  const q=(document.getElementById('nq').value||'').toLowerCase();
+  const fp=document.getElementById('nfp').value;
+  let rows=NEW.filter(n=>{
+    if(fp&&n[3]!==fp)return false;
+    if(q){const hay=(n.join(' ')).toLowerCase();if(!hay.includes(q))return false;}
+    return true;
+  });
+  document.getElementById('ntbody').innerHTML=rows.map(n=>{
+    const pc=n[3]==='P0'?'var(--bad)':n[3]==='P1'?'var(--warn)':n[3]==='P2'?'var(--acc)':'var(--tx3)';
+    return `<tr>
+      <td><div class="tname">${esc(n[0])}</div></td>
+      <td><div class="note" style="color:var(--tx)">${esc(n[1])}</div></td>
+      <td><div class="comp">${esc(n[2])}</div></td>
+      <td><span class="tier" style="color:${pc};border-color:${pc}55">${n[3]}</span></td>
+      <td><span class="comp">${esc(n[4])}</span></td>
+      <td><div class="note">${esc(n[5])}</div></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('ncnt').textContent=rows.length+' of '+NEW.length+' proposals';
+}
+function renderHooks(){
+  const q=(document.getElementById('hq').value||'').toLowerCase();
+  const rows=HOOKS.filter(h=>!q||h.join(' ').toLowerCase().includes(q));
+  document.getElementById('htbody').innerHTML=rows.map(h=>{
+    const rec=h[4];
+    const rc=rec==='ok'?'var(--keep)':rec==='ADD'?'var(--enhance)':rec==='KEEP'?'var(--tx3)':'var(--bad)';
+    const lab=rec==='ok'?'parity':rec==='ADD'?'ADD':rec==='KEEP'?'KEEP':'BLOCKER';
+    const cls=rec==='ok'?'KEEP':rec;
+    return `<tr>
+      <td><div class="note" style="color:var(--tx);font-weight:600">${esc(h[0])}</div></td>
+      <td><div class="comp">${esc(h[1])}</div></td>
+      <td><div class="comp">${esc(h[2])}</div></td>
+      <td><div class="comp">${esc(h[3])}</div></td>
+      <td><span class="v v-${cls}" style="color:${rc}">${lab}</span></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('hcnt').textContent=rows.length+' of '+HOOKS.length+' capabilities';
+}
+['q','fv','ft','fs'].forEach(id=>document.getElementById(id).addEventListener('input',renderTools));
+['nq','nfp'].forEach(id=>document.getElementById(id).addEventListener('input',renderNew));
+document.getElementById('hq').addEventListener('input',renderHooks);
+renderTools();renderNew();renderHooks();
+
+function renderHosts(){
+  const q=(document.getElementById('pq')||{}).value;
+  const qy=(q||'').toLowerCase();
+  const rows=HOSTS.filter(h=>!qy||h.join(' ').toLowerCase().includes(qy));
+  document.getElementById('ptbody').innerHTML=rows.map(h=>{
+    const v=h[9];
+    const col=v==='GAP'?'var(--bad)':v==='REFERENCE'?'var(--acc)':'var(--keep)';
+    const yn=b=>b&&b.toLowerCase()!=='no'&&b.toLowerCase()!=='n/a'
+        ? '<span class="dot y"></span>' : '<span class="dot n"></span>';
+    const warn=b=>b&&b.toLowerCase().startsWith('no')?'style="color:var(--bad)"':'';
+    return `<tr>
+      <td><div class="tname">${esc(h[0])}</div><div class="comp">${esc(h[1])} · ${esc(h[2])}</div></td>
+      <td>${yn(h[3])}<span style="font-size:11.5px;color:var(--tx3)">${esc(h[3])}</span></td>
+      <td ${warn(h[4])}>${yn(h[4])}<span style="font-size:11.5px;color:var(--tx3)">${esc(h[4])}</span></td>
+      <td><div class="comp">${esc(h[5])}</div></td>
+      <td><div class="comp">${esc(h[6])}</div></td>
+      <td><div class="note">${esc(h[7])}</div></td>
+      <td><div class="note">${esc(h[8])}</div></td>
+      <td><span class="v v-${v==='GAP'?'DISABLE':v==='REFERENCE'?'ENHANCE':'KEEP'}" style="color:${col}">${v}</span></td>
+      <td><div class="note">${esc(h[10])}</div></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('pcnt').textContent=rows.length+' of '+HOSTS.length+' systems';
+}
+renderHosts();
+if(document.getElementById('pq'))document.getElementById('pq').addEventListener('input',renderHosts);
+
+function renderJTools(){
+  const q=(document.getElementById('jq')||{}).value||'';
+  const qy=q.toLowerCase();
+  const rows=JTOOLS.filter(t=>!qy||t.join(' ').toLowerCase().includes(qy));
+  document.getElementById('jtbody').innerHTML=rows.map(t=>
+    `<tr><td><div class="tname">${esc(t[0])}</div></td><td><div class="note" style="color:var(--tx)">${esc(t[1])}</div></td></tr>`).join('');
+  document.getElementById('jcnt').textContent=rows.length+' of '+JTOOLS.length+' tools';
+}
+renderJTools();
+if(document.getElementById('jq'))document.getElementById('jq').addEventListener('input',renderJTools);
+
+function renderJHooks(){
+  document.getElementById('jhbody').innerHTML=JHOOKS.map(h=>
+    `<tr><td><div class="tname" style="font-size:12.5px">${esc(h[0])}</div></td>
+        <td><div class="comp">${esc(h[1])}</div></td>
+        <td><div class="note" style="color:var(--tx)">${esc(h[2])}</div></td></tr>`).join('');
+}
+renderJHooks();
+
+const th=document.getElementById('theme');
+function setTheme(t){document.documentElement.setAttribute('data-theme',t);localStorage.setItem('report-theme',t);
+  th.textContent=t==='dark'?'Light mode':'Dark mode';}
+th.addEventListener('click',()=>setTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'));
+setTheme(localStorage.getItem('report-theme')||'dark');
+</script>
+</body></html>
