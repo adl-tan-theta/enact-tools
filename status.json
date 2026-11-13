@@ -1,7 +1,7 @@
 {
  "generated": "2026-11-13",
  "question": "Where do we stand, and what does syncing with zeroclaw master actually cost?",
- "headline": "The upstream sync is applied. 23 upstream commits are merged, the four moved anchors are re-pointed at the new protocol crate, the three exhaustiveness constraints upstream imposes are satisfied, and the fork's tracked core is byte-identical to upstream master again. The cargo sweep that followed the merge failed five tests in three targets; a control run against pristine upstream sorted them, and the three the fork owned are fixed. Widening the sweep to the channels crate found three more, all pre-existing. The tree now fails exactly what pristine upstream fails, and the native build is green on ubuntu-22.04, macOS arm64 and macOS x64.",
+ "headline": "The upstream sync is applied. 23 upstream commits are merged, the four moved anchors are re-pointed at the new protocol crate, the three exhaustiveness constraints upstream imposes are satisfied, and the fork's tracked core is byte-identical to upstream master again. The cargo sweep that followed the merge failed five tests in three targets; a control run against pristine upstream sorted them, and the three the fork owned are fixed. Widening the sweep to the channels crate found three more, all pre-existing. The tree now fails exactly what pristine upstream fails, and the native build is green on ubuntu-22.04, macOS arm64 and macOS x64 at the branch head itself.",
  "verdict": "The sync is in, and the fork is back at parity with upstream. The tracked core matches byte for byte, the overlay follows upstream's structure in zeroclaw-rpc-proto, and release.json pins the base the core actually matches. The sweep that the merge triggered also surfaced four real defects \u2014 the overlay was promising a tool a default build cannot deliver, was offering the memory family to runs that had removed the memory tools, and left the Matrix channel's own expectations stale for the skill tools the fork registers. All are fixed and gated. One of them was not only a stale test: the Matrix safe policy's argument list is production code, so in safe mode the skill tools were being shown a \"name\" argument they do not have while their real \"slug\" was filtered out. What is left is the CI gap: upstream's Quality Gate still does not run in the fork, so nothing checks those anchors for us.",
  "repos": [
   {
@@ -138,7 +138,7 @@
   },
   {
    "check": "Native build CI (ubuntu, macos arm64, macos x64)",
-   "result": "green on all three platforms at d550d902d \u2014 the arm64 leg needed a re-run after a crates.io network flake",
+   "result": "green on all three platforms at the final head e25e0cd72 \u2014 and again at d550d902d, whose arm64 leg needed a re-run after a crates.io network flake",
    "state": "good"
   }
  ],
@@ -299,9 +299,9 @@
    "detail": "The first sweep covered six crates. Widening it to the channels crate found three more failures, all pre-existing: the fork makes the skill tools first-class, and upstream's Matrix channel expectations were written for a registry that never holds them. The allowlist, the policy's field list and the branding literal all follow now. The lesson for the fork is that the sweep's crate list is itself a decision, and a narrow one hides old failures."
   },
   {
-   "title": "The native build CI had not run against the final head",
-   "severity": "low",
-   "detail": "The three-platform native build \u2014 ubuntu-22.04, macOS arm64 and macOS x64 \u2014 went green at d550d902d, the merge plus the email and scope fixes. The arm64 leg first failed on a crates.io network flake rather than on the code, and passed on re-run. The two commits after it (the Matrix policy fix and its gate test) change production code in the channels crate, so that green result does not cover them by itself; a fresh run was dispatched at the final head e25e0cd72."
+   "title": "The native build CI \u2014 confirmed at the final head",
+   "severity": "resolved",
+   "detail": "The three-platform native build \u2014 ubuntu-22.04, macOS arm64 and macOS x64 \u2014 went green at d550d902d, the merge plus the email and scope fixes. The arm64 leg first failed on a crates.io network flake rather than on the code, and passed on re-run. The two commits after it (the Matrix policy fix and its gate test) change production code in the channels crate, so that green result did not cover them by itself. A second run was dispatched at the final head e25e0cd72 and came back green on all three legs: ubuntu in 18 minutes, macOS arm64 in 54, macOS x64 in 78."
   },
   {
    "title": "Upstream's CI never runs the desktop crate \u2014 the fork does",

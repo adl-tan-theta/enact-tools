@@ -31,7 +31,8 @@ STATUS = {
         "against pristine upstream sorted them, and the three the fork owned are "
         "fixed. Widening the sweep to the channels crate found three more, all "
         "pre-existing. The tree now fails exactly what pristine upstream fails, and "
-        "the native build is green on ubuntu-22.04, macOS arm64 and macOS x64."
+        "the native build is green on ubuntu-22.04, macOS arm64 and macOS x64 at "
+        "the branch head itself."
     ),
     "verdict": (
         "The sync is in, and the fork is back at parity with upstream. The tracked "
@@ -156,7 +157,7 @@ STATUS = {
         {"check": "Web", "result": "branding + sidebar 8 / 8", "state": "good"},
         {"check": "Bridge suite + bridge.py verify", "result": "68 OK, 11 / 11", "state": "good"},
         {"check": "Desktop App Check (3 platforms)", "result": "ubuntu-22.04 failed once on upstream's own desktop test, then green on re-run; 920 iterations of a standalone reproducer did not reproduce it", "state": "warn"},
-        {"check": "Native build CI (ubuntu, macos arm64, macos x64)", "result": "green on all three platforms at d550d902d — the arm64 leg needed a re-run after a crates.io network flake", "state": "good"},
+        {"check": "Native build CI (ubuntu, macos arm64, macos x64)", "result": "green on all three platforms at the final head e25e0cd72 — and again at d550d902d, whose arm64 leg needed a re-run after a crates.io network flake", "state": "good"},
     ],
     "verification_note": (
         "The three remaining failures are the ones pristine upstream fails on the "
@@ -451,17 +452,18 @@ STATUS = {
             ),
         },
         {
-            "title": "The native build CI had not run against the final head",
-            "severity": "low",
+            "title": "The native build CI — confirmed at the final head",
+            "severity": "resolved",
             "detail": (
                 "The three-platform native build — ubuntu-22.04, macOS arm64 and "
                 "macOS x64 — went green at d550d902d, the merge plus the email and "
                 "scope fixes. The arm64 leg first failed on a crates.io network "
                 "flake rather than on the code, and passed on re-run. The two "
                 "commits after it (the Matrix policy fix and its gate test) change "
-                "production code in the channels crate, so that green result does "
-                "not cover them by itself; a fresh run was dispatched at the final "
-                "head e25e0cd72."
+                "production code in the channels crate, so that green result did "
+                "not cover them by itself. A second run was dispatched at the "
+                "final head e25e0cd72 and came back green on all three legs: "
+                "ubuntu in 18 minutes, macOS arm64 in 54, macOS x64 in 78."
             ),
         },
         {
