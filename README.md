@@ -14,11 +14,14 @@ This repository is the **workspace** side of the work. The product side lives in
 
 | path | what it is |
 |---|---|
-| [`enact-tools-surface-review.html`](enact-tools-surface-review.html) | **the deliverable** — open it in a browser |
+| [`enact-tools-schema-report.html`](enact-tools-schema-report.html) | **the schema-level report** — every tool, before and after, with its real JSON schema and the config surface |
+| [`enact-tools-surface-review.html`](enact-tools-surface-review.html) | the review — how the surface was consolidated and why |
+| [`enact-sync-status.html`](enact-sync-status.html) | where the upstream sync stands, and what it will touch |
 | `zeroclaw-tools-operations.csv` | the baseline inventory the review is built on (109 tools / 244 operations) |
-| `build_report.py` | inventory + verdicts → `data.json` |
-| `render_report.py` | `data.json` → the HTML review |
-| `data.json` | generated intermediate between the two scripts |
+| `build_tools_surface.py` + `rust_expr.py` | the Rust source → real tool schemas |
+| `build_config_surface.py` | the binary → the real configuration surface |
+| `render_tools_surface.py` | `tools-surface.json` + `config-surface.json` → the schema-level HTML |
+| `build_report.py` / `render_report.py` | the review, and its HTML |
 | `prototype/` | **enact-bridge** — a working MCP server that publishes enact-agent's tool surface to Codex CLI and Claude Code |
 | `research/` | notes and the (local-only) third-party clones the review draws on |
 
@@ -62,6 +65,11 @@ All of these landed in `enact-agent` — see the *native server* section of
 python3 build_report.py     # inventory + verdicts → data.json
 python3 render_report.py    # data.json → enact-tools-surface-review.html
 
+# regenerate the schema-level report
+python3 build_tools_surface.py   # the Rust source → every tool's real schema
+python3 build_config_surface.py   # the binary → the real configuration surface
+python3 render_tools_surface.py   # both → enact-tools-schema-report.html
+
 # the bridge
 cd prototype
 python3 -m unittest discover -s tests -t .   # 68 tests
@@ -70,6 +78,32 @@ python3 bridge.py show                       # 83 canonical tools, 244 operation
 ```
 
 Pure Python 3.11+ standard library. **Zero dependencies.**
+
+### The schema-level report
+
+[`enact-tools-schema-report.html`](enact-tools-schema-report.html) shows the surface at
+schema level: all **109** source tools and all **83** canonical tools, each with the JSON
+schema it actually ships.
+
+Nothing in it is written by hand.
+
+* `build_tools_surface.py` reads every tool's `parameters_schema()` out of the Rust
+  source and resolves the constants, associated constants, message catalogue and table
+  folds that the schema refers to. `rust_expr.py` is the resolver.
+* The same script drives the built binary over MCP (`mcp serve --expose-full`) and
+  captures the `inputSchema` it really advertises, then compares the two. The only
+  difference is `file_read`, whose schema the overlay rewrites in the prepared tree.
+* `build_config_surface.py` reads the JSON Schema the binary prints for
+  `zeroclaw config schema` — the same document the gateway serves at
+  `GET /api/config` — and keeps the 19 sections that govern the tool surface.
+
+The binary must be built with the `schema-export` feature for the config half:
+
+```sh
+cd ../enact-agent/target/enact/source
+ENACT_AGENT_BUILD=1 CARGO_TARGET_DIR="$PWD/../../.." cargo build --locked --release \
+  --no-default-features --features agent-runtime,tools-external,schema-export --bin zeroclaw
+```
 
 ### Finding the enact-agent checkout
 
@@ -129,6 +163,7 @@ enact-agent (the product, Rust)
 enact-tools (this repo, Python)
   prototype/                 ← host-facing bridge (installs into Codex & Claude Code)
   build_report.py            ← the review
+  build_tools_surface.py     ← the schema-level report
 ```
 
 The division of labour: **the MCP server and the tool registry belong to
