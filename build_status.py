@@ -73,7 +73,10 @@ STATUS = {
             "role": "the workspace — review, report generators, host bridge",
             "url": "https://github.com/adl-tan-theta/enact-tools",
             "visibility": "public",
-            "state": "main @ c8198fd, 9 commits, 45 tracked files (2.0 MB).",
+            "state": (
+                "main, clean and in sync with origin — 45 tracked files (2.0 MB). "
+                "The newest commit is the one carrying this report."
+            ),
             "detail": (
                 "Cleaned and published this session. The three third-party research "
                 "clones (823 MB) and the demo project's generated host wiring are "
