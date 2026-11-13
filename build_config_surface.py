@@ -16,8 +16,10 @@ import os
 import subprocess
 import sys
 
+import enact_paths
+
 ROOT = os.path.dirname(os.path.abspath(__file__))
-AGENT = os.path.join(os.path.dirname(ROOT), "enact-agent")
+AGENT = str(enact_paths.enact_agent_dir() or os.path.join(os.path.dirname(ROOT), "enact-agent"))
 BINARY = os.path.join(AGENT, "target/release/zeroclaw")
 OUT = os.path.join(ROOT, "config-surface.json")
 

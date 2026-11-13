@@ -28,10 +28,11 @@ import subprocess
 import sys
 from collections import defaultdict
 
+import enact_paths
 import rust_expr as RX
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-AGENT = os.path.join(os.path.dirname(ROOT), "enact-agent")
+AGENT = str(enact_paths.enact_agent_dir() or os.path.join(os.path.dirname(ROOT), "enact-agent"))
 CSV = os.path.join(ROOT, "zeroclaw-tools-operations.csv")
 
 
