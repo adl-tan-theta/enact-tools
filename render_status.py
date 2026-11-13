@@ -90,8 +90,10 @@ ol.steps li p{margin:0;color:var(--tx2);font-size:14px}
 
 .risk{border-left:3px solid var(--bad)}
 .risk.medium{border-left-color:var(--warn)}
+.risk.resolved{border-left-color:var(--keep)}
 .risk .sev{font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--bad)}
 .risk.medium .sev{color:var(--warn)}
+.risk.resolved .sev{color:var(--keep)}
 
 ul.plain{margin:0;padding-left:20px;color:var(--tx2)}
 ul.plain li{margin-bottom:6px}
@@ -210,6 +212,36 @@ def render() -> str:
             f"<td class='mono'><span class='pill {pill}'>{esc(item['result'])}</span></td></tr>")
     add("</tbody></table>")
     add(f"<p class='note' style='margin-top:12px'>{esc(d['verification_note'])}</p>")
+    add("</section>")
+
+    # the triage
+    t = d["triage"]
+    add("<section><h3>The triage</h3>")
+    add(f"<p class='note'>{esc(t['headline'])}</p>")
+    add(f"<p class='note'>{esc(t['method'])}</p>")
+    add("<div class='facts'>")
+    for key, value, cls in (
+        ("Failures before", t["before"], "bad"),
+        ("Failures after", t["after"], "good"),
+    ):
+        add(f"<div class='fact'><div class='k'>{esc(key)}</div>"
+            f"<div class='v {cls}'>{esc(value)}</div></div>")
+    add("</div>")
+    add("<table><thead><tr><th>Test</th><th>Pristine upstream</th><th>The fork</th>"
+        "<th>Cause and fix</th></tr></thead><tbody>")
+    for row in t["rows"]:
+        state = row.get("state", "good")
+        pill = {"fixed": "good", "inherited": "warn"}.get(state, state)
+        label = {"fixed": "fixed here", "inherited": "inherited"}.get(state, state)
+        cause = row["cause"]
+        if row.get("fix"):
+            cause = f"{cause}<br><span class='note'>{esc(row['fix'])}</span>"
+        add(f"<tr><td class='mono'>{esc(row['test'])}</td>"
+            f"<td class='mono'>{esc(row['upstream'])}</td>"
+            f"<td class='mono'><span class='pill {pill}'>{esc(label)}</span></td>"
+            f"<td>{cause}</td></tr>")
+    add("</tbody></table>")
+    add(f"<p class='note' style='margin-top:12px'>{esc(t['note'])}</p>")
     add("</section>")
 
     # the sync
