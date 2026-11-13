@@ -41,7 +41,10 @@ from enact_paths import overlay_csv  # noqa: E402
 from merge_map import MERGE_FAMILIES, canonical_for, family_of  # noqa: E402
 
 CSV_MAIN = os.path.join(ROOT, "..", "zeroclaw-tools-operations.csv")
-CSV_OVERLAY = str(overlay_csv())
+try:
+    CSV_OVERLAY = str(overlay_csv())
+except FileNotFoundError as exc:
+    sys.exit(f"generate_registry.py: {exc}")
 
 # ---------------------------------------------------------------- descriptions
 FAMILY_DESCRIPTIONS = {

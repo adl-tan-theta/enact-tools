@@ -19,7 +19,10 @@ sys.path.insert(0, ROOT)
 from enact_paths import overlay_csv  # noqa: E402
 
 CSV_MAIN = os.path.join(ROOT, "zeroclaw-tools-operations.csv")
-CSV_OVERLAY = str(overlay_csv())
+try:
+    CSV_OVERLAY = str(overlay_csv())
+except FileNotFoundError as exc:
+    sys.exit(f"build_report.py: {exc}")
 
 # ---------------------------------------------------------------- load baseline
 rows = list(csv.DictReader(open(CSV_MAIN)))

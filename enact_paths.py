@@ -40,19 +40,22 @@ def candidate_dirs() -> list[Path]:
             Path.cwd().parent / "enact-agent",
         ]
     )
-    return candidates
+
+    unique: list[Path] = []
+    seen: set[Path] = set()
+    for candidate in candidates:
+        resolved = candidate.resolve()
+        if resolved not in seen:
+            seen.add(resolved)
+            unique.append(resolved)
+    return unique
 
 
 def enact_agent_dir() -> Path | None:
     """The enact-agent checkout, or None when it cannot be found."""
-    seen: set[Path] = set()
     for candidate in candidate_dirs():
-        resolved = candidate.resolve()
-        if resolved in seen:
-            continue
-        seen.add(resolved)
-        if (resolved / OVERLAY_RELATIVE).is_file():
-            return resolved
+        if (candidate / OVERLAY_RELATIVE).is_file():
+            return candidate
     return None
 
 
