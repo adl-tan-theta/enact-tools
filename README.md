@@ -135,3 +135,26 @@ The division of labour: **the MCP server and the tool registry belong to
 `enact-agent`** (it owns the real implementations and the real policy gate); **host
 installation, policy mirroring and registry generation belong here** (they are
 host-facing, and must work against a stock upstream build too).
+
+---
+
+## Licensing
+
+This repository holds the fork's own review, generators and host adapter. It
+carries no license file of its own yet — the code here is **ZeroClaw Labs'**
+(the fork's upstream copyright holder), and the sibling `enact-agent` fork is
+distributed under the upstream dual MIT / Apache-2.0 terms with its `LICENSE-MIT`,
+`LICENSE-APACHE` and `NOTICE` files.
+
+The three research projects this review compares against are **not**
+redistributed here — they are git-ignored and cloned on demand:
+
+| project | license |
+|---|---|
+| [oh-my-pi](https://github.com/can1357/oh-my-pi) | MIT (© 2025 Mario Zechner) |
+| [lean-ctx](https://github.com/yvgude/lean-ctx) | Apache-2.0, with a path-level `LICENSE_MATRIX.toml` |
+| [jcode](https://github.com/1jehuang/jcode) | MIT (© 2025 Jeremy Huang) |
+
+`zeroclaw-tools-operations.csv` is derived from `enact-agent`'s own inventory and
+inherits the upstream dual MIT / Apache-2.0 terms.
+
