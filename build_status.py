@@ -29,18 +29,20 @@ STATUS = {
         "tracked core is byte-identical to upstream master again. The cargo sweep "
         "that followed the merge failed five tests in three targets; a control run "
         "against pristine upstream sorted them, and the three the fork owned are "
-        "fixed. The tree now fails exactly what pristine upstream fails."
+        "fixed. Widening the sweep to the channels crate found three more, all "
+        "pre-existing. The tree now fails exactly what pristine upstream fails."
     ),
     "verdict": (
         "The sync is in, and the fork is back at parity with upstream. The tracked "
         "core matches byte for byte, the overlay follows upstream's structure in "
         "zeroclaw-rpc-proto, and release.json pins the base the core actually "
-        "matches. The sweep that the merge triggered also surfaced three real "
-        "defects in the consolidated tool families — the overlay was promising a "
-        "tool a default build cannot deliver, and was offering the memory family "
-        "to runs that had removed the memory tools. Both are fixed and gated. "
-        "What is left is the CI gap: upstream's Quality Gate still does not run "
-        "in the fork, so nothing checks those anchors for us."
+        "matches. The sweep that the merge triggered also surfaced four real "
+        "defects — the overlay was promising a tool a default build cannot "
+        "deliver, was offering the memory family to runs that had removed the "
+        "memory tools, and left the Matrix channel's own expectations stale for "
+        "the skill tools the fork registers. All are fixed and gated. What is "
+        "left is the CI gap: upstream's Quality Gate still does not run in the "
+        "fork, so nothing checks those anchors for us."
     ),
 
     # ---------------------------------------------------------------- repos
@@ -140,8 +142,9 @@ STATUS = {
         {"check": "Family table", "result": "19 / 19 OK", "state": "good"},
         {"check": "zeroclaw-rpc-proto --lib (new crate)", "result": "25 / 0 — including the exclusive catalog test", "state": "good"},
         {"check": "zeroclaw-api --lib", "result": "322 / 0", "state": "good"},
-        {"check": "Cargo sweep (debug, 6 crates)", "result": "3 failures in 2 targets — the same three pristine upstream fails on this host", "state": "good"},
+        {"check": "Cargo sweep (debug, 7 crates)", "result": "3 failures in 2 targets — the same three pristine upstream fails on this host", "state": "good"},
         {"check": "Control run against pristine upstream/master", "result": "3 of the 5 sweep failures reproduce upstream — the other two were the fork's", "state": "good"},
+        {"check": "zeroclaw-channels --lib", "result": "2061 / 0 after the Matrix policy fix", "state": "good"},
         {"check": "Native probe (local RPC)", "result": "24 checks OK — session/tools and the success field both work end to end", "state": "good"},
         {"check": "Release build", "result": "5m 30s, no warnings", "state": "good"},
         {"check": "Release-gate core check", "result": "git diff --exit-code 2c0a8c263 -- src crates Cargo.toml Cargo.lock: clean", "state": "good"},
@@ -171,9 +174,11 @@ STATUS = {
             "regression from an inherited failure, a second worktree was created at "
             "upstream/master — pristine, no overlay, its own target directory — and "
             "the same sweep was run against it on the same machine. A failure that "
-            "reproduced there is upstream's; a failure that did not is the fork's."
+            "reproduced there is upstream's; a failure that did not is the fork's. "
+            "The sweep's crate list was then widened to the channels crate, which "
+            "had not been covered; it held three more failures, all pre-existing."
         ),
-        "before": "5 failures in 3 targets",
+        "before": "5 failures in 3 targets, then 3 more in a crate the sweep had not reached",
         "after": "3 failures in 2 targets — exactly the three pristine upstream fails",
         "rows": [
             {
@@ -230,6 +235,48 @@ STATUS = {
                     "The fixture now drops a family whose every member is a memory "
                     "tool, so the expectation states the corrected rule."
                 ),
+            },
+            {
+                "test": "orchestrator::tests::matrix_safe_policy_names_only_inventoried_tools",
+                "upstream": "passes",
+                "fork": "failed",
+                "state": "fixed",
+                "cause": (
+                    "Upstream deliberately leaves skills_list, skill_view and "
+                    "skill_manage out of the built-in inventory and allows for "
+                    "them in the Matrix policy's test. The fork registers and "
+                    "inventories them, so the allowlist was stale. This one was "
+                    "pre-existing: it fails the same way with the overlay from "
+                    "before the sync."
+                ),
+                "fix": "The allowlist lets the three go, because the fork inventories them.",
+            },
+            {
+                "test": "orchestrator::tests::matrix_safe_policy_fields_match_active_standard_tool_schemas",
+                "upstream": "passes",
+                "fork": "failed",
+                "state": "fixed",
+                "cause": (
+                    "The policy named a \"name\" argument for skill_view, "
+                    "skill_manage and skills_list. skill_view and skill_manage "
+                    "take a \"slug\", and skills_list takes none. Upstream's entry "
+                    "is dormant there, because those tools are never in its "
+                    "default registry; the fork registers them, so the entry "
+                    "became live and wrong."
+                ),
+                "fix": "The policy now names the arguments the tools really take.",
+            },
+            {
+                "test": "orchestrator::tests::process_channel_message_refreshes_available_skills_after_new_session",
+                "upstream": "passes",
+                "fork": "failed",
+                "state": "fixed",
+                "cause": (
+                    "The test asserts on the product literal the fork replaces. "
+                    "The branding projection reached the runtime's skill files "
+                    "but not the channels crate."
+                ),
+                "fix": "The branding projection now reaches the channels crate too.",
             },
             {
                 "test": "relay::local_dial_tests::a_closed_route_releases_a_dial_parked_on_a_stalled_listener",
@@ -376,6 +423,19 @@ STATUS = {
                 "test: the run was offered memory access it had been denied. A "
                 "family is now offered only while at least one of its members is, "
                 "and the overlay gate states that rule."
+            ),
+        },
+        {
+            "title": "The sweep's crate list was the gap, not the merge",
+            "severity": "resolved",
+            "detail": (
+                "The first sweep covered six crates. Widening it to the channels "
+                "crate found three more failures, all pre-existing: the fork makes "
+                "the skill tools first-class, and upstream's Matrix channel "
+                "expectations were written for a registry that never holds them. "
+                "The allowlist, the policy's field list and the branding literal "
+                "all follow now. The lesson for the fork is that the sweep's crate "
+                "list is itself a decision, and a narrow one hides old failures."
             ),
         },
         {
@@ -530,12 +590,14 @@ STATUS = {
             "detail": (
                 "Overlay gate (35 tests), prepare(), a release build (5m 30s, no "
                 "warnings), probe_native.py (24 checks), the web tests, and the "
-                "cargo sweep over six crates. The sweep failed three targets; a "
+                "cargo sweep over seven crates. The sweep failed three targets; a "
                 "control run against a pristine upstream/master worktree sorted "
                 "the five failures into three inherited and two the fork's own. "
-                "Both fork failures were defects in the consolidated families and "
-                "are fixed and gated. The sweep now fails exactly what pristine "
-                "upstream fails on this machine."
+                "Both fork failures were defects in the consolidated families. "
+                "Widening the sweep to the channels crate found three more, also "
+                "the fork's own and also pre-existing. All five are fixed and "
+                "gated. The sweep now fails exactly what pristine upstream fails "
+                "on this machine."
             ),
         },
         {
