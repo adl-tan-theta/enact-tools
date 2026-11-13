@@ -90,10 +90,12 @@ ol.steps li p{margin:0;color:var(--tx2);font-size:14px}
 
 .risk{border-left:3px solid var(--bad)}
 .risk.medium{border-left-color:var(--warn)}
-.risk.resolved{border-left-color:var(--keep)}
+.risk.resolved{border-left-color:var(--good)}
+.risk.low{border-left-color:var(--tx3)}
 .risk .sev{font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--bad)}
 .risk.medium .sev{color:var(--warn)}
-.risk.resolved .sev{color:var(--keep)}
+.risk.resolved .sev{color:var(--good)}
+.risk.low .sev{color:var(--tx3)}
 
 ul.plain{margin:0;padding-left:20px;color:var(--tx2)}
 ul.plain li{margin-bottom:6px}

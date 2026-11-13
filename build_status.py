@@ -30,7 +30,8 @@ STATUS = {
         "that followed the merge failed five tests in three targets; a control run "
         "against pristine upstream sorted them, and the three the fork owned are "
         "fixed. Widening the sweep to the channels crate found three more, all "
-        "pre-existing. The tree now fails exactly what pristine upstream fails."
+        "pre-existing. The tree now fails exactly what pristine upstream fails, and "
+        "the native build is green on ubuntu-22.04, macOS arm64 and macOS x64."
     ),
     "verdict": (
         "The sync is in, and the fork is back at parity with upstream. The tracked "
@@ -40,9 +41,12 @@ STATUS = {
         "defects — the overlay was promising a tool a default build cannot "
         "deliver, was offering the memory family to runs that had removed the "
         "memory tools, and left the Matrix channel's own expectations stale for "
-        "the skill tools the fork registers. All are fixed and gated. What is "
-        "left is the CI gap: upstream's Quality Gate still does not run in the "
-        "fork, so nothing checks those anchors for us."
+        "the skill tools the fork registers. All are fixed and gated. One of them "
+        "was not only a stale test: the Matrix safe policy's argument list is "
+        "production code, so in safe mode the skill tools were being shown a "
+        "\"name\" argument they do not have while their real \"slug\" was "
+        "filtered out. What is left is the CI gap: upstream's Quality Gate still "
+        "does not run in the fork, so nothing checks those anchors for us."
     ),
 
     # ---------------------------------------------------------------- repos
@@ -52,10 +56,10 @@ STATUS = {
             "role": "the product — a fork of zeroclaw-labs/zeroclaw",
             "url": "https://github.com/adl-tan-theta/enact-agent",
             "visibility": "public",
-            "state": "Branch worktree/affectionate-ride-r8iuw6 @ d550d902d, in sync with origin.",
+            "state": "Branch worktree/affectionate-ride-r8iuw6 @ e25e0cd72, in sync with origin.",
             "detail": (
                 "Pull request #4 is OPEN, MERGEABLE and CLEAN against base "
-                "enact/branding: 93 commits, 336 files. The fork's own checks run "
+                "enact/branding: 95 commits, 336 files. The fork's own checks run "
                 "on the pull request — Validate PR title, Apply path labels, the "
                 "Desktop App Check on three platforms, and the translations pin. "
                 "Upstream zeroclaw master contains no Enact commit — the fork never "
@@ -68,7 +72,7 @@ STATUS = {
             "role": "the workspace — review, report generators, host bridge",
             "url": "https://github.com/adl-tan-theta/enact-tools",
             "visibility": "public",
-            "state": "main @ 9605d98, 3 commits, 34 tracked files (652 KB).",
+            "state": "main @ c8198fd, 9 commits, 45 tracked files (2.0 MB).",
             "detail": (
                 "Cleaned and published this session. The three third-party research "
                 "clones (823 MB) and the demo project's generated host wiring are "
@@ -136,7 +140,7 @@ STATUS = {
 
     # ---------------------------------------------------------------- evidence
     "verification": [
-        {"check": "Overlay gate", "result": "35 / 35 OK", "state": "good"},
+        {"check": "Overlay gate", "result": "36 / 36 OK", "state": "good"},
         {"check": "prepare() against the merged tree", "result": "clean — all 44 anchors resolve once", "state": "good"},
         {"check": "Capability contract", "result": "2 / 2 OK", "state": "good"},
         {"check": "Family table", "result": "19 / 19 OK", "state": "good"},
@@ -152,7 +156,7 @@ STATUS = {
         {"check": "Web", "result": "branding + sidebar 8 / 8", "state": "good"},
         {"check": "Bridge suite + bridge.py verify", "result": "68 OK, 11 / 11", "state": "good"},
         {"check": "Desktop App Check (3 platforms)", "result": "ubuntu-22.04 failed once on upstream's own desktop test, then green on re-run; 920 iterations of a standalone reproducer did not reproduce it", "state": "warn"},
-        {"check": "Native build CI (ubuntu, macos arm64, macos x64)", "result": "dispatched on the merged tree", "state": "warn"},
+        {"check": "Native build CI (ubuntu, macos arm64, macos x64)", "result": "green on all three platforms at d550d902d — the arm64 leg needed a re-run after a crates.io network flake", "state": "good"},
     ],
     "verification_note": (
         "The three remaining failures are the ones pristine upstream fails on the "
@@ -264,7 +268,15 @@ STATUS = {
                     "default registry; the fork registers them, so the entry "
                     "became live and wrong."
                 ),
-                "fix": "The policy now names the arguments the tools really take.",
+                "fix": (
+                    "The policy now names the arguments the tools really take. "
+                    "This one reached production code, not only a test: "
+                    "matrix_safe_tool_arguments is a top-level function in the "
+                    "channels crate and drives which arguments the Matrix stream "
+                    "renders for a tool, so before the fix safe mode advertised "
+                    "a \"name\" the skill tools do not have while filtering out "
+                    "the \"slug\" they do."
+                ),
             },
             {
                 "test": "orchestrator::tests::process_channel_message_refreshes_available_skills_after_new_session",
@@ -436,6 +448,20 @@ STATUS = {
                 "The allowlist, the policy's field list and the branding literal "
                 "all follow now. The lesson for the fork is that the sweep's crate "
                 "list is itself a decision, and a narrow one hides old failures."
+            ),
+        },
+        {
+            "title": "The native build CI had not run against the final head",
+            "severity": "low",
+            "detail": (
+                "The three-platform native build — ubuntu-22.04, macOS arm64 and "
+                "macOS x64 — went green at d550d902d, the merge plus the email and "
+                "scope fixes. The arm64 leg first failed on a crates.io network "
+                "flake rather than on the code, and passed on re-run. The two "
+                "commits after it (the Matrix policy fix and its gate test) change "
+                "production code in the channels crate, so that green result does "
+                "not cover them by itself; a fresh run was dispatched at the final "
+                "head e25e0cd72."
             ),
         },
         {
